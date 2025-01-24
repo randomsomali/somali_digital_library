@@ -1,0 +1,161 @@
+{
+  "navigation": {
+    "home": "Home",
+    "resources": "Resources",
+        "menuTitle": "Menu", 
+
+    "categories": {
+      "educational": "Educational Materials",
+      "scientific": "Scientific Papers",
+      "literature": "Literature"
+    },
+    "library": {
+      "title": "Library",
+      "books": "Books",
+      "research": "Research Papers",
+      "articles": "Articles"
+    },
+    "about": "About",
+    "contact": "Contact"
+  },
+  "auth": {
+    "login": "Login",
+    "signup": "Sign Up",
+    "profile": "Profile",
+    "username": "Username",
+    "password": "Password",
+    "phone": "Phone",
+    "logout": "Logout",
+    "loginSuccess": "Login successful",
+    "registerSuccess": "User  registered successfully",
+    "invalidCredentials": "Invalid username or password",
+    "userNotFound": "User  not found",
+    "usernameExists": "Username or phone already exists"
+  },
+"home": {
+   "hero": {
+      "title": "Your Gateway to Digital Knowledge",
+      "description": "Access thousands of books, journals, and research papers from leading publishers and institutions.",
+      "explore": "Explore Now",
+      "learnMore": "Learn More"
+    },
+    "stats": {
+      "books": "Books",
+      "journals": "Journals",
+      "articles": "Articles",
+      "users": "Users"
+    },
+      "categories": {
+      "title": "Explore Categories",
+      "description": "Browse through various categories to discover content that suits your interests."
+    }
+  },
+  "categories": {
+      "title": "Featured Categories",
+      "description": "Browse through various categories of knowledge and explore the digital library.",
+      "academic": {
+        "title": "Academic",
+        "description": "Access a wide range of academic resources and materials."
+      },
+      "research": {
+        "title": "Research",
+        "description": "Explore research papers, journals, and articles from various fields."
+      },
+      "literature": {
+        "title": "Literature",
+        "description": "Dive into classic and modern literature from renowned authors."
+      }
+    },
+   "search": {
+    "title": "Search the Library",
+    "description": "Find books, journals, articles, and more with advanced search options.",
+    "placeholder": "Search for books, journals, or articles",
+    "categoryPlaceholder": "Select category",
+    "categories": {
+      "all": "All Categories",
+      "books": "Books",
+      "articles": "Articles",
+      "journals": "Journals"
+    },
+    "button": "Search"
+  },
+  "common": {
+    "logo": "Somali Digital Library",
+    "search": "Search",
+    "language": "Language",
+    "theme": "Theme"
+  },
+  "footer": {
+    "about": {
+      "title": "About Us",
+      "description": "Learn more about our mission and the services we offer to help you explore the world of knowledge."
+    },
+    "quickLinks": {
+      "title": "Quick Links",
+      "links": [
+        { "label": "Home", "href": "/" },
+        { "label": "Categories", "href": "/categories" },
+        { "label": "Resources", "href": "/resources" },
+        { "label": "Contact Us", "href": "/contact" }
+      ]
+    },
+    "resources": {
+      "title": "Resources",
+      "links": [
+        { "label": "Library", "href": "/library" },
+        { "label": "FAQ", "href": "/faq" },
+        { "label": "Help Center", "href": "/help-center" }
+      ]
+    },
+    "newsletter": {
+      "title": "Subscribe to our Newsletter",
+      "description": "Stay updated with the latest news, articles, and resources by subscribing to our newsletter.",
+      "placeholder": "Enter your email",
+      "button": "Subscribe"
+    },
+    "copyright": "All rights reserved."
+  },
+  "about": {
+        "title": "Access a wide range of academic resources and materials."
+},
+"resources": {
+    "title": "Digital Library Resources",
+    "filters": {
+      "title": "Filters",
+      "category": "Category",
+      "type": "Resource Type",
+      "year": "Publication Year",
+      "language": "Language",
+      "apply": "Apply Filters",
+      "clear": "Clear Filters",
+      "searchPlaceholder": "Search by title, author, or keywords..."
+    },
+    "details": {
+      "abstract": "Abstract",
+      "authors": "Authors",
+      "published": "Published",
+      "category": "Category",
+      "type": "Type",
+      "downloads": "Downloads",
+      "citations": "Citations",
+      "keywords": "Keywords",
+      "doi": "DOI",
+      "publisher": "Publisher",
+      "pages": "Pages",
+      "download": "Download",
+      "cite": "Cite",
+      "share": "Share",
+      "relatedResources": "Related Resources"
+    },
+    "types": {
+      "book": "Book",
+      "paper": "Research Paper",
+      "article": "Article",
+      "thesis": "Thesis"
+    },
+    "noResults": "No resources found matching your criteria",
+    "loading": "Loading resources...",
+    "error": "Error loading resources. Please try again."
+  }
+
+}
