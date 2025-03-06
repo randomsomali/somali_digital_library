@@ -1,6 +1,6 @@
 // src/contexts/AuthContext.jsx
 import { createContext, useContext, useState, useEffect } from 'react';
-import api, { login as apiLogin, logout as apiLogout } from '../services/api';
+import  { login as apiLogin, logout as apiLogout, getCurrentAdmin } from '../services/api';
 import Loader from '../components/Loader';
 
 const AuthContext = createContext(null);
@@ -8,28 +8,19 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [admin, setAdmin] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
   const [initialized, setInitialized] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const response = await api.get('/admins/me'); // Adjusted to fetch admin data
-        const adminData = response.data;
-        setAdmin(adminData);
-        console.log(adminData)
-
-        // Automatically navigate to the correct dashboard
-        const currentPath = window.location.pathname;
-        if (currentPath === '/' || currentPath === '/login') {
-          const roleBasedPath = adminData.role === 'admin' ? '/admin/dashboard' : '/staff/dashboard';
-          window.location.replace(roleBasedPath);
-        }
+        const response = await getCurrentAdmin();
+        setAdmin(response.admin);
+        setMessage(response.message);
       } catch (error) {
-        if (error.response?.status === 401) {
-          setAdmin(null); // Unauthenticated
-        } else {
-          console.error('Authentication check failed:', error);
-        }
+        setAdmin(null);
+        setError(error.message);
       } finally {
         setLoading(false);
         setInitialized(true);
@@ -39,24 +30,47 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  const login = async (username, password) => {
+  // Clear error and message after 5 seconds
+  useEffect(() => {
+    if (error || message) {
+      const timer = setTimeout(() => {
+        setError(null);
+        setMessage(null);
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, message]);
+
+  const login = async (email, password) => {
     try {
-      const response = await apiLogin(username, password);
-      setAdmin(response.admin); // Adjusted to set admin data
+      setLoading(true);
+      setError(null);
+      const response = await apiLogin(email, password);
+      setAdmin(response.admin);
+      setMessage(response.message);
       return response.admin;
     } catch (error) {
+      setError(error.message);
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      await apiLogout();
-    } catch (error) {
-      console.error('Logout failed:', error);
-    } finally {
+      setLoading(true);
+      const message = await apiLogout();
       setAdmin(null);
-      window.location.href = '/login'; // Force redirect to login
+      setMessage(message);
+      window.location.href = '/login';
+    } catch (error) {
+      setError(error.message);
+      // Force logout even if API call fails
+      setAdmin(null);
+      window.location.href = '/login';
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -73,11 +87,18 @@ export const AuthProvider = ({ children }) => {
 
   return (
     <AuthContext.Provider value={{ 
-      admin, 
-      login, 
-      logout, 
+      admin,
       loading,
-      updateAdminInContext 
+      error,
+      message,
+      login,
+      logout,
+      updateAdminInContext,
+      isAuthenticated: !!admin,
+      isAdmin: admin?.role === 'admin',
+      isStaff: admin?.role === 'staff',
+      clearError: () => setError(null),
+      clearMessage: () => setMessage(null)
     }}>
       {children}
     </AuthContext.Provider>

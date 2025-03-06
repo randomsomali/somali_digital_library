@@ -27,7 +27,7 @@ export function Hero({ dictionary, lang }: HeroProps) {
       <div className="container px-4 py-24 mx-auto">
         <div className="grid gap-8 lg:grid-cols-2 lg:gap-16 items-center">
           <div className="max-w-xl mx-auto lg:mx-0 text-center lg:text-left">
-            <h1 className="text-4xl font-bold tracking-tight sm:text-6xl mb-6">
+            <h1 className="text-5xl font-bold tracking-tight sm:text-6xl mb-6">
               {dictionary.home.hero.title}
             </h1>
             <p className="text-lg text-muted-foreground mb-8">

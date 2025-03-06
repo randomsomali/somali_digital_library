@@ -2,8 +2,7 @@
   "navigation": {
     "home": "Home",
     "resources": "Resources",
-        "menuTitle": "Menu", 
-
+    "menuTitle": "Menu",
     "categories": {
       "educational": "Educational Materials",
       "scientific": "Scientific Papers",
@@ -32,8 +31,8 @@
     "userNotFound": "User  not found",
     "usernameExists": "Username or phone already exists"
   },
-"home": {
-   "hero": {
+  "home": {
+    "hero": {
       "title": "Your Gateway to Digital Knowledge",
       "description": "Access thousands of books, journals, and research papers from leading publishers and institutions.",
       "explore": "Explore Now",
@@ -45,28 +44,28 @@
       "articles": "Articles",
       "users": "Users"
     },
-      "categories": {
+    "categories": {
       "title": "Explore Categories",
       "description": "Browse through various categories to discover content that suits your interests."
     }
   },
   "categories": {
-      "title": "Featured Categories",
-      "description": "Browse through various categories of knowledge and explore the digital library.",
-      "academic": {
-        "title": "Academic",
-        "description": "Access a wide range of academic resources and materials."
-      },
-      "research": {
-        "title": "Research",
-        "description": "Explore research papers, journals, and articles from various fields."
-      },
-      "literature": {
-        "title": "Literature",
-        "description": "Dive into classic and modern literature from renowned authors."
-      }
+    "title": "Featured Categories",
+    "description": "Browse through various categories of knowledge and explore the digital library.",
+    "academic": {
+      "title": "Academic",
+      "description": "Access a wide range of academic resources and materials."
     },
-   "search": {
+    "research": {
+      "title": "Research",
+      "description": "Explore research papers, journals, and articles from various fields."
+    },
+    "literature": {
+      "title": "Literature",
+      "description": "Dive into classic and modern literature from renowned authors."
+    }
+  },
+  "search": {
     "title": "Search the Library",
     "description": "Find books, journals, articles, and more with advanced search options.",
     "placeholder": "Search for books, journals, or articles",
@@ -93,18 +92,39 @@
     "quickLinks": {
       "title": "Quick Links",
       "links": [
-        { "label": "Home", "href": "/" },
-        { "label": "Categories", "href": "/categories" },
-        { "label": "Resources", "href": "/resources" },
-        { "label": "Contact Us", "href": "/contact" }
+        {
+          "label": "Home",
+          "href": "/"
+        },
+        {
+          "label": "Categories",
+          "href": "/categories"
+        },
+        {
+          "label": "Resources",
+          "href": "/resources"
+        },
+        {
+          "label": "Contact Us",
+          "href": "/contact"
+        }
       ]
     },
     "resources": {
       "title": "Resources",
       "links": [
-        { "label": "Library", "href": "/library" },
-        { "label": "FAQ", "href": "/faq" },
-        { "label": "Help Center", "href": "/help-center" }
+        {
+          "label": "Library",
+          "href": "/library"
+        },
+        {
+          "label": "FAQ",
+          "href": "/faq"
+        },
+        {
+          "label": "Help Center",
+          "href": "/help-center"
+        }
       ]
     },
     "newsletter": {
@@ -116,19 +136,26 @@
     "copyright": "All rights reserved."
   },
   "about": {
-        "title": "Access a wide range of academic resources and materials."
-},
-"resources": {
+    "title": "Access a wide range of academic resources and materials."
+  },
+  "resources": {
     "title": "Digital Library Resources",
+    "description": "Explore our collection of academic resources, research papers, and educational materials.",
+    "resultsCount": "Showing {count} resources",
     "filters": {
-      "title": "Filters",
+      "title": "Search & Filter",
+      "subtitle": "Refine your search using the filters below",
       "category": "Category",
-      "type": "Resource Type",
-      "year": "Publication Year",
+      "type": "Type",
+      "year": "Year",
       "language": "Language",
       "apply": "Apply Filters",
       "clear": "Clear Filters",
-      "searchPlaceholder": "Search by title, author, or keywords..."
+      "searchPlaceholder": "Search resources...",
+      "allTypes": "All Types",
+      "allYears": "All Years",
+      "allLanguages": "All Languages",
+      "allCategories": "All Categories"
     },
     "details": {
       "abstract": "Abstract",
@@ -145,17 +172,27 @@
       "download": "Download",
       "cite": "Cite",
       "share": "Share",
+      "view": "View Details",
       "relatedResources": "Related Resources"
     },
     "types": {
-      "book": "Book",
-      "paper": "Research Paper",
-      "article": "Article",
-      "thesis": "Thesis"
+      "Thesis": "Thesis",
+      "Journal": "Journal",
+      "Book": "Book",
+      "Article": "Article",
+      "Report": "Report",
+      "Other": "Other"
     },
-    "noResults": "No resources found matching your criteria",
+    "premium": "Premium",
+    "free": "Free",
+    "noResults": "No resources found",
     "loading": "Loading resources...",
-    "error": "Error loading resources. Please try again."
+    "error": "Error loading resources",
+    "retry": "Try Again",
+    "backToList": "Back to Resources",
+    "notFound": {
+      "title": "Resource Not Found",
+      "description": "The resource you're looking for doesn't exist or has been removed."
+    }
   }
-
 }

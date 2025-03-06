@@ -1,6 +1,6 @@
-const cloudinary = require("cloudinary").v2;
-const { CloudinaryStorage } = require("multer-storage-cloudinary");
-const multer = require("multer");
+import { v2 as cloudinary } from "cloudinary";
+import { CloudinaryStorage } from "multer-storage-cloudinary";
+import multer from "multer";
 
 // Configure Cloudinary
 cloudinary.config({
@@ -13,15 +13,60 @@ cloudinary.config({
 const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
-    folder: "SBL", // Cloudinary folder to store images
-    allowed_formats: ["jpg", "png", "jpeg", "gif", "webp", "pdf", "docx"],
-    transformation: [{ width: 500, height: 500, crop: "limit" }],
+    folder: "SBL/resources",
+    resource_type: "raw",
+    allowed_formats: ["pdf", "doc", "docx", "txt", "rtf"],
+    access_mode: "authenticated",
+    type: "private",
   },
 });
 
-const upload = multer({ storage: storage });
+// Configure multer with file size limits and file filter
+const upload = multer({
+  storage: storage,
+  limits: {
+    fileSize: 10 * 1024 * 1024, // 10MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    // Check file type
+    const allowedTypes = [
+      "application/pdf",
+      "application/msword",
+      "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      "text/plain",
+      "application/rtf",
+    ];
+    if (!allowedTypes.includes(file.mimetype)) {
+      cb(
+        new Error(
+          "Invalid file type. Only PDF, DOC, DOCX, TXT, and RTF files are allowed."
+        )
+      );
+      return;
+    }
+    cb(null, true);
+  },
+});
 
-module.exports = {
-  cloudinary,
-  upload,
+// Function to generate signed URL for file download
+const generateSignedUrl = async (publicId, expiresIn = 3600) => {
+  try {
+    const signedUrl = cloudinary.utils.private_download_url(publicId, "raw", {
+      expires_at: Math.floor(Date.now() / 1000) + expiresIn, // Default 1 hour expiry
+      attachment: true, // Forces download rather than preview
+    });
+    return signedUrl;
+  } catch (error) {
+    console.error("Error generating signed URL:", error);
+    throw error;
+  }
 };
+
+// Function to extract public ID from Cloudinary URL
+const getPublicIdFromUrl = (url) => {
+  const urlParts = url.split("/");
+  const filename = urlParts[urlParts.length - 1];
+  return `${urlParts[urlParts.length - 2]}/${filename.split(".")[0]}`;
+};
+
+export { cloudinary, upload, generateSignedUrl, getPublicIdFromUrl };

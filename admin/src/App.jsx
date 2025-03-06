@@ -4,17 +4,11 @@ import { createBrowserRouter } from 'react-router-dom';
 import AdminLayout from './layouts/AdminLayout';
 import Login from './pages/auth/Login';
 import AdminDashboard from './pages/admin/Dashboard';
-import Clients from './pages/admin/Clients';
-import Resources from './pages/admin/Resources';
-import ProjectDetails from './pages/admin/projectdetails';
 import Categories from './pages/admin/Categories';
-
-import Users from './pages/admin/Users';
-
-import Reports from './pages/admin/Reports';
 import StaffDashboard from './pages/staff/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
-import NewResource from './pages/admin/AddResource';
+import Users from './pages/admin/Users';
+import Admins from './pages/admin/Admins';
 
 import NotFound from './components/NotFound';
 
@@ -29,14 +23,9 @@ const router = createBrowserRouter([
   children: [
     { index: true, element: <Navigate to="/admin/dashboard" replace /> },
       { path: 'dashboard', element: <AdminDashboard /> },
-      { path: 'clients', element: <Clients /> },
       { path: 'categories', element: <Categories /> },
-      { path: 'resources', element: <Resources /> },
-      { path: 'projects/:id', element: <ProjectDetails /> },  // Dynamic route for project details
-      { path: 'resources/add', element: <NewResource /> },  // Dynamic route for project details
-
       { path: 'users', element: <Users /> },
-      { path: 'reports', element: <Reports /> },
+      { path: 'admins', element: <Admins /> },
     ],
   },
   {

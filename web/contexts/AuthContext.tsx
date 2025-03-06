@@ -15,7 +15,7 @@ import Loader from "@/components/Loader";
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // All routes that require authentication
-const PROTECTED_ROUTES = ["/books/[id]"]; // Add your protected routes here
+const PROTECTED_ROUTES = ["/resources/[id]"]; // Add your protected routes here
 const AUTH_ROUTES = ["/login", "/signup"];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {

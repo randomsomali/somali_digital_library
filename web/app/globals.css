@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+html {
+  overflow-x: hidden;
+  /* Prevent horizontal scroll */
+}
 body {
   font-family: Arial, Helvetica, sans-serif;
 }
@@ -61,7 +64,11 @@ body {
     --chart-5: 340 75% 55%;
   }
 }
-
+@layer utilities {
+    .text-gradient {
+        @apply bg-gradient-to-r from-theme-from via-theme-via to-theme-to bg-clip-text text-transparent text-6xl font-bold tracking-tight;
+      }
+}
 @layer base {
   * {
     @apply border-border;

@@ -1,58 +1,106 @@
-// models/categoryModel.js
-const pool = require("../config/db");
+import db from "../config/db.js";
 
 class Category {
-  static async createCategory(category_name, description) {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-      const [result] = await connection.query(
-        "INSERT INTO categories (category_name, description) VALUES (?, ?)",
-        [category_name, description]
-      );
-      await connection.commit();
-      return result.insertId;
-    } finally {
-      connection.release();
-    }
+  static async findAll() {
+    const sql = `
+      SELECT 
+        c.id,
+        c.name,
+        COUNT(r.id) as resource_count
+      FROM categories c
+      LEFT JOIN resources r ON c.id = r.category_id AND r.status = 'published'
+      GROUP BY c.id
+      ORDER BY c.name ASC
+    `;
+
+    const categories = await db.query(sql);
+    return categories;
   }
 
-  static async getAllCategories() {
-    const connection = await pool.getConnection();
-    try {
-      const [rows] = await connection.query("SELECT * FROM categories");
-      return rows;
-    } finally {
-      connection.release();
+  // Admin CRUD operations
+  static async findAllForAdmin(filters = {}) {
+    const page = Math.max(1, parseInt(filters.page) || 1);
+    const limit = Math.min(50, Math.max(5, parseInt(filters.limit) || 15));
+
+    let sql = `
+      SELECT 
+        c.id,
+        c.name,
+        COUNT(r.id) as resource_count,
+        c.created_at,
+        c.updated_at
+      FROM categories c
+      LEFT JOIN resources r ON c.id = r.category_id
+    `;
+
+    const params = [];
+
+    if (filters.search) {
+      sql += ` WHERE c.name LIKE ?`;
+      params.push(`%${filters.search}%`);
     }
+
+    // Get total count before pagination
+    const countSql = `SELECT COUNT(*) as total FROM categories c ${
+      filters.search ? "WHERE c.name LIKE ?" : ""
+    }`;
+
+    const [countResult] = await db.query(
+      countSql,
+      filters.search ? [`%${filters.search}%`] : []
+    );
+    const total = parseInt(countResult.total);
+    const totalPages = Math.ceil(total / limit);
+
+    sql += ` GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?`;
+    const offset = (page - 1) * limit;
+    params.push(limit, offset);
+
+    const categories = await db.query(sql, params);
+
+    return {
+      categories,
+      total,
+      totalPages,
+      page,
+      limit,
+    };
   }
 
-  static async updateCategory(category_id, category_name, description) {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-      await connection.query(
-        "UPDATE categories SET category_name = ?, description = ? WHERE category_id = ?",
-        [category_name, description, category_id]
-      );
-      await connection.commit();
-    } finally {
-      connection.release();
-    }
+  static async findByIdForAdmin(id) {
+    const sql = `
+      SELECT 
+        c.id,
+        c.name,
+        COUNT(r.id) as resource_count,
+        c.created_at,
+        c.updated_at
+      FROM categories c
+      LEFT JOIN resources r ON c.id = r.category_id
+      WHERE c.id = ?
+      GROUP BY c.id
+    `;
+
+    const [category] = await db.query(sql, [id]);
+    return category || null;
   }
 
-  static async deleteCategory(category_id) {
-    const connection = await pool.getConnection();
-    try {
-      await connection.beginTransaction();
-      await connection.query("DELETE FROM categories WHERE category_id = ?", [
-        category_id,
-      ]);
-      await connection.commit();
-    } finally {
-      connection.release();
-    }
+  static async create(data) {
+    const sql = `INSERT INTO categories (name) VALUES (?)`;
+    const result = await db.query(sql, [data.name]);
+    return result.insertId;
+  }
+
+  static async update(id, data) {
+    const sql = `UPDATE categories SET name = ? WHERE id = ?`;
+    await db.query(sql, [data.name, id]);
+    return this.findByIdForAdmin(id);
+  }
+
+  static async delete(id) {
+    const sql = `DELETE FROM categories WHERE id = ?`;
+    await db.query(sql, [id]);
   }
 }
 
-module.exports = Category;
+export default Category;

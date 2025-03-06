@@ -2,6 +2,7 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Loader from './Loader';
 
+// Add check for login path and handle redirects
 export const ProtectedRoute = ({ children }) => {
   const { admin, loading } = useAuth();
   const location = useLocation();
@@ -15,7 +16,7 @@ export const ProtectedRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  // Redirect to role-based dashboard if the path is invalid for the role
+  // Role-based path protection
   const path = location.pathname;
   const isAdminRoute = path.startsWith('/admin');
   const isStaffRoute = path.startsWith('/staff');

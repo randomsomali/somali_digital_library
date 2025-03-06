@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, CheckCircle, XCircle, Eye, EyeOff, X, User } from "lucide-react";
+import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, XCircle, Eye, EyeOff } from "lucide-react";
 import { fetchUsers, createUser, updateUser, deleteUser } from "@/services/api";
-
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,10 +15,9 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -32,13 +30,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -47,57 +40,43 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import NotificationDialog from "@/components/ui/NotificationDialog";
+import { z } from "zod";
+
+// Zod schema for user validation
+const userSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z.string().email("Invalid email format"),
+  password: z.string().min(6, "Password must be at least 6 characters").optional(),
+  role: z.enum(["user", "student"], { required_error: "Role is required" }),
+  institution_id: z.number().nullable(),
+  sub_status: z.enum(["none", "active", "expired"]).default("none"),
+});
 
 const validateForm = (formData, isUpdate = false) => {
-  const errors = {};
-  
-  if (!formData.full_name.trim()) {
-    errors.full_name = "Full name is required";
+  try {
+    const schema = isUpdate
+      ? userSchema.partial({ password: true })
+      : userSchema;
+    
+    schema.parse(formData);
+    return {};
+  } catch (error) {
+    return error.errors.reduce((acc, curr) => {
+      acc[curr.path[0]] = curr.message;
+      return acc;
+    }, {});
   }
-  
-  if (!formData.username.trim()) {
-    errors.username = "Username is required";
-  }
-  
-  if (!formData.phone.trim()) {
-    errors.phone = "Phone is required";
-  } else if (!/^(\d{3}-\d{3}-\d{4}|\d{12})$/.test(formData.phone)) {
-    errors.phone = "Phone format should be XXX-XXX-XXXX or 2526XXXXXXXX";
-  }
-  
-  if (!formData.role) {
-    errors.role = "Role is required";
-  }
-  
-  if (!formData.category.trim()) {
-    errors.category = "Category is required";
-  }
-  
-  if (!isUpdate && !formData.password) {
-    errors.password = "Password is required";
-  }
-  
-  return errors;
 };
 
 const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
-  const [formData, setFormData] = useState(initialData ? {
-    user_id: initialData.user_id,
-    full_name: initialData.full_name,
-    username: initialData.username,
-    phone: initialData.phone,
-    role: initialData.role,
-    category: initialData.category,
+  const [formData, setFormData] = useState(initialData || {
+    name: "",
+    email: "",
     password: "",
-  } : {
-    full_name: "",
-    username: "",
-    phone: "",
     role: "",
-    category: "",
-    password: "Setsom123",
+    institution_id: null,
+    sub_status: "none",
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -115,15 +94,13 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
     }
     
     try {
-      const dataToSubmit = { ...formData };
-      if (initialData && !dataToSubmit.password) {
-        delete dataToSubmit.password;
-      }
-      
-      await onSubmit(dataToSubmit);
+      await onSubmit(formData);
       setErrors({});
     } catch (error) {
-      setErrors({ submit: error.message || "An error occurred while saving" });
+      setErrors({ 
+        submit: error.message || "An error occurred while saving",
+        ...error.validationErrors 
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -138,40 +115,57 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
           <AlertDescription>{errors.submit}</AlertDescription>
         </Alert>
       )}
-      
+
       <div className="grid gap-4">
         <div className="grid gap-2">
-          <Label htmlFor="full_name">Full Name</Label>
+          <Label htmlFor="name">Name</Label>
           <Input
-            id="full_name"
-            value={formData.full_name}
-            onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
-            className={errors.full_name ? "border-red-500" : ""}
+            id="name"
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            className={errors.name ? "border-red-500" : ""}
           />
-          {errors.full_name && <p className="text-sm text-red-500">{errors.full_name}</p>}
+          {errors.name && <p className="text-sm text-red-500">{errors.name}</p>}
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="username">Username</Label>
+          <Label htmlFor="email">Email</Label>
           <Input
-            id="username"
-            value={formData.username}
-            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
-            className={errors.username ? "border-red-500" : ""}
+            id="email"
+            type="email"
+            value={formData.email}
+            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+            className={errors.email ? "border-red-500" : ""}
           />
-          {errors.username && <p className="text-sm text-red-500">{errors.username}</p>}
+          {errors.email && <p className="text-sm text-red-500">{errors.email}</p>}
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="phone">Phone</Label>
-          <Input
-            id="phone"
-            value={formData.phone}
-            onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-            className={errors.phone ? "border-red-500" : ""}
-            placeholder="XXX-XXX-XXXX"
-          />
-          {errors.phone && <p className="text-sm text-red-500">{errors.phone}</p>}
+          <Label htmlFor="password">
+            {initialData ? "New Password (leave blank to keep current)" : "Password"}
+          </Label>
+          <div className="relative">
+            <Input
+              id="password"
+              type={showPassword ? "text" : "password"}
+              value={formData.password}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+              className={errors.password ? "border-red-500 pr-10" : "pr-10"}
+              placeholder={initialData ? "Leave blank to keep current password" : ""}
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 flex items-center pr-3"
+            >
+              {showPassword ? (
+                <EyeOff className="h-4 w-4 text-gray-400" />
+              ) : (
+                <Eye className="h-4 w-4 text-gray-400" />
+              )}
+            </button>
+          </div>
+          {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
         </div>
 
         <div className="grid gap-2">
@@ -184,61 +178,37 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="admin">Admin</SelectItem>
-              <SelectItem value="staff">Staff</SelectItem>
               <SelectItem value="user">User</SelectItem>
+              <SelectItem value="student">Student</SelectItem>
             </SelectContent>
           </Select>
           {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
         </div>
 
-      
         <div className="grid gap-2">
-          <Label htmlFor="category">Category</Label>
+          <Label htmlFor="sub_status">Subscription Status</Label>
           <Select
-            value={formData.category}
-            onValueChange={(value) => setFormData({ ...formData, category: value })}
+            value={formData.sub_status}
+            onValueChange={(value) => setFormData({ ...formData, sub_status: value })}
           >
-            <SelectTrigger className={errors.category ? "border-red-500" : ""}>
-              <SelectValue placeholder="Select category" />
+            <SelectTrigger>
+              <SelectValue placeholder="Select subscription status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="hardware">Hardware</SelectItem>
-              <SelectItem value="software">Software</SelectItem>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
             </SelectContent>
           </Select>
-          {errors.category && <p className="text-sm text-red-500">{errors.category}</p>}
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="password">Password</Label>
-          <div className="relative">
-            <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              value={formData.password}
-              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              placeholder={initialData ? "Leave blank to keep existing password" : "Enter password"}
-              className="pr-10"
-            /> <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
-            >
-              {showPassword ? <EyeOff className="h-4 w-4 text-gray-400" /> : <Eye className="h-4 w-4 text-gray-400" />}
-            </button>
-          </div>
         </div>
       </div>
 
       <DialogFooter>
-        <Button variant="outline" onClick={onCancel}>
+        <Button variant="outline" onClick={onCancel} type="button">
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Saving..." : "Save User"}
+          {isSubmitting ? "Saving..." : initialData ? "Update User" : "Create User"}
         </Button>
       </DialogFooter>
     </form>
@@ -250,62 +220,70 @@ const Users = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [search, setSearch] = useState("");
-  const [selectedUser , setSelectedUser ] = useState(null);
+  const [selectedUser, setSelectedUser] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [successDialog, setSuccessDialog] = useState({ isOpen: false, message: "" });
   const [errorDialog, setErrorDialog] = useState({ isOpen: false, message: "" });
-
-  const itemsPerPage = 10;
+  const limit = 10;
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [currentPage, search]);
 
   const loadUsers = async () => {
     try {
       setLoading(true);
-      const data = await fetchUsers();
-      setUsers(data);
+      const params = {
+        page: currentPage,
+        limit,
+        search: search || undefined,
+      };
+      
+      const result = await fetchUsers(params);
+      setUsers(result.users);
+      setTotalPages(result.totalPages);
       setError(null);
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to load users");
+      setError(err.message || "Failed to load users");
+      showError(err.message || "Failed to load users");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddUser  = async (newUser ) => {
+  const handleAddUser = async (formData) => {
     try {
-      await createUser (newUser );
+      await createUser(formData);
       await loadUsers();
       setIsAddModalOpen(false);
-      showSuccess("User  added successfully!");
+      showSuccess("User created successfully!");
     } catch (error) {
-      showError(error.response?.data?.message || "Failed to add user");
+      throw error;
     }
   };
 
-  const handleUpdateUser  = async (updatedUser ) => {
+  const handleUpdateUser = async (formData) => {
     try {
-      await updateUser (updatedUser .user_id, updatedUser );
+      await updateUser(selectedUser.user_id, formData);
       await loadUsers();
       setIsEditModalOpen(false);
-      setSelectedUser (null);
-      showSuccess("User  updated successfully!");
+      setSelectedUser(null);
+      showSuccess("User updated successfully!");
     } catch (error) {
-      showError(error.response?.data?.message || "Failed to update user");
+      throw error;
     }
   };
 
-  const handleDeleteUser  = async (id) => {
+  const handleDeleteUser = async (id) => {
     try {
-      await deleteUser (id);
+      await deleteUser(id);
       await loadUsers();
-      showSuccess("User  deleted successfully!");
+      showSuccess("User deleted successfully!");
     } catch (error) {
-      showError(error.response?.data?.message || "Failed to delete user");
+      showError(error.message || "Failed to delete user");
     }
   };
 
@@ -317,61 +295,68 @@ const Users = () => {
     setErrorDialog({ isOpen: true, message });
   };
 
-  if (loading) {
+  const getPageNumbers = () => {
+    const pageNumbers = [];
+    const maxVisiblePages = 5;
+    
+    if (totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= totalPages; i++) {
+        pageNumbers.push(i);
+      }
+    } else {
+      let startPage = Math.max(1, currentPage - 2);
+      let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+      
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      if (startPage > 1) {
+        pageNumbers.push(1);
+        if (startPage > 2) pageNumbers.push('...');
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pageNumbers.push(i);
+      }
+
+      if (endPage < totalPages) {
+        if (endPage < totalPages - 1) pageNumbers.push('...');
+        pageNumbers.push(totalPages);
+      }
+    }
+    
+    return pageNumbers;
+  };
+
+  if (loading && users.length === 0) {
     return (
       <Card className="bg-background">
         <CardContent className="flex justify-center items-center h-64">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
-            <p className="mt-4">Loading Users...</p>
+            <p className="mt-4">Loading users...</p>
           </div>
         </CardContent>
       </Card>
     );
   }
 
-  if (error) {
-    return (
-      <Card className="bg-background">
-        <CardContent>
-          <Alert variant="destructive">
-            <XCircle className="h-4 w-4" />
-            <AlertTitle>Error</AlertTitle>
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        </CardContent>
-      </Card>
-    );
-  }
-
-  const filteredUsers = users.filter(
-    (user) =>
-      user.full_name.toLowerCase().includes(search.toLowerCase()) ||
-      user.phone.includes(search) ||
-      user.username.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const indexOfLastItem = currentPage * itemsPerPage;
-  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentUsers = filteredUsers.slice(indexOfFirstItem, indexOfLastItem);
-  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
-
   return (
-    <Card className="bg -background">
+    <Card className="bg-background">
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-2xl font-bold text-foreground">Users</CardTitle>
             <CardDescription className="text-muted-foreground">
-              Manage Users
+              Manage your user database
             </CardDescription>
           </div>
           <Button
             className="bg-primary text-primary-foreground hover:bg-primary/90"
             onClick={() => setIsAddModalOpen(true)}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Add User
+            <Plus className="mr-2 h-4 w-4" /> Add User
           </Button>
         </div>
       </CardHeader>
@@ -380,47 +365,62 @@ const Users = () => {
           <div className="relative">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search by name, username, or phone..."
+              placeholder="Search users..."
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setCurrentPage(1);
+              }}
               className="pl-8 bg-background border-input"
             />
           </div>
         </div>
+
         <div className="rounded-md border overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <TableHead className="font-bold">ID</TableHead>
-                <TableHead className="font-bold">Full Name</TableHead>
-                <TableHead className="font-bold">Username</TableHead>
-                <TableHead className="font-bold">Phone</TableHead>
+                <TableHead className="font-bold">Name</TableHead>
+                <TableHead className="font-bold">Email</TableHead>
                 <TableHead className="font-bold">Role</TableHead>
-                <TableHead className="font-bold">Category</TableHead>
+                <TableHead className="font-bold">Subscription</TableHead>
+                <TableHead className="font-bold">Created At</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {currentUsers.map((user) => (
+              {users.map((user) => (
                 <TableRow key={user.user_id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                  <TableCell>{user.user_id}</TableCell>
-                  <TableCell>{user.full_name}</TableCell>
-                  <TableCell>{user.username}</TableCell>
-                  <TableCell>{user.phone}</TableCell>
-                  <TableCell>{user.role}</TableCell>
-                  <TableCell>{user.category}</TableCell>
+                  <TableCell>{user.name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell className="capitalize">{user.role}</TableCell>
+                  <TableCell>
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      user.sub_status === 'active' 
+                        ? 'bg-green-100 text-green-800'
+                        : user.sub_status === 'expired'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-gray-100 text-gray-800'
+                    }`}>
+                      {user.sub_status}
+                    </span>
+                  </TableCell>
+                  <TableCell>
+                    {new Date(user.created_at).toLocaleDateString()}
+                  </TableCell>
                   <TableCell>
                     <div className="flex gap-2">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => {
-                          setSelectedUser (user);
+                          setSelectedUser(user);
                           setIsEditModalOpen(true);
                         }}
                       >
                         <Pencil className="h-4 w-4" />
                       </Button>
+
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
                           <Button variant="ghost" size="icon">
@@ -436,9 +436,7 @@ const Users = () => {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => handleDeleteUser (user.user_id)}
-                            >
+                            <AlertDialogAction onClick={() => handleDeleteUser(user.user_id)}>
                               Delete
                             </AlertDialogAction>
                           </AlertDialogFooter>
@@ -448,34 +446,60 @@ const Users = () => {
                   </TableCell>
                 </TableRow>
               ))}
+              {users.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8">
+                    No users found
+                  </TableCell>
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
-        <div className="flex items-center justify-between mt-4">
-          <p className="text-sm text-muted-foreground">
-            Showing {indexOfFirstItem + 1} to {Math.min(indexOfLastItem, filteredUsers.length)} of {filteredUsers.length} entries
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="border-input hover:bg-accent"
-            >
-              <ChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="border-input hover:bg-accent"
-            >
-              <ChevronRight className ="h-4 w-4" />
-            </Button>
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4">
+            <p className="text-sm text-muted-foreground">
+              Showing {((currentPage - 1) * limit) + 1} to {Math.min(currentPage * limit, users.length)} of {users.length} entries
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="border-input hover:bg-accent"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              
+              {getPageNumbers().map((pageNum, index) => (
+                <Button
+                  key={index}
+                  variant={pageNum === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => pageNum !== '...' && setCurrentPage(pageNum)}
+                  disabled={pageNum === '...'}
+                  className={`min-w-[2.5rem] ${
+                    pageNum === currentPage ? 'bg-primary text-primary-foreground' : 'border-input hover:bg-accent'
+                  }`}
+                >
+                  {pageNum}
+                </Button>
+              ))}
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="border-input hover:bg-accent"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
+        )}
       </CardContent>
 
       {/* Add User Modal */}
@@ -487,9 +511,9 @@ const Users = () => {
               Fill in the user details below
             </DialogDescription>
           </DialogHeader>
-          <UserForm
-            onSubmit={handleAddUser }
-            onCancel={() => setIsAddModalOpen(false)}
+          <UserForm 
+            onSubmit={handleAddUser} 
+            onCancel={() => setIsAddModalOpen(false)} 
           />
         </DialogContent>
       </Dialog>
@@ -503,15 +527,20 @@ const Users = () => {
               Update user details below
             </DialogDescription>
           </DialogHeader>
-          <UserForm
-            initialData={selectedUser }
-            onSubmit={handleUpdateUser }
-            onCancel={() => setIsEditModalOpen(false)}
-          />
+          {selectedUser && (
+            <UserForm
+              onSubmit={handleUpdateUser}
+              initialData={selectedUser}
+              onCancel={() => {
+                setIsEditModalOpen(false);
+                setSelectedUser(null);
+              }}
+            />
+          )}
         </DialogContent>
       </Dialog>
 
-      {/* Success Dialog */}
+      {/* Notification Dialogs */}
       <NotificationDialog
         isOpen={successDialog.isOpen}
         onClose={() => setSuccessDialog({ ...successDialog, isOpen: false })}
@@ -528,4 +557,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default Users; 

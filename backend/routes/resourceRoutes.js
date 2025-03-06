@@ -1,30 +1,36 @@
-const express = require("express");
+import express from "express";
+import {
+  getResources,
+  getResourceById,
+  createResource,
+  updateResource,
+  updateResourceStatus,
+  updateResourcePaidStatus,
+  deleteResource,
+} from "../controllers/resourceController.js";
+import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
+
 const router = express.Router();
-const resourceController = require("../controllers/resourceController");
-const authMiddleware = require("../middleware/authMiddleware");
-const { upload } = require("../config/cloudinary");
 
-router.post(
-  "/",
-  authMiddleware.verifyTokenAndRole("admin"),
-  upload.single("file"), // Assuming the file input name is 'file'
-  resourceController.createResource
+// Public routes
+router.get("/", getResources);
+router.get("/:id", getResourceById);
+
+// Protected routes (admin only)
+router.post("/", authenticate, authorizeAdmin(), createResource);
+router.put("/:id", authenticate, authorizeAdmin(), updateResource);
+router.patch(
+  "/:id/status",
+  authenticate,
+  authorizeAdmin(),
+  updateResourceStatus
 );
-
-router.get("/", resourceController.getAllResources);
-router.get("/filter", resourceController.getAllResourcesnext);
-
-router.get("/:id", resourceController.getResourceById);
-router.put(
-  "/:id",
-  authMiddleware.verifyTokenAndRole("admin"),
-  upload.single("file"),
-  resourceController.updateResource
+router.patch(
+  "/:id/paid",
+  authenticate,
+  authorizeAdmin(),
+  updateResourcePaidStatus
 );
-router.delete(
-  "/:id",
-  authMiddleware.verifyTokenAndRole("admin"),
-  resourceController.deleteResource
-);
+router.delete("/:id", authenticate, authorizeAdmin(), deleteResource);
 
-module.exports = router;
+export default router;

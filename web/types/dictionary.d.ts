@@ -136,10 +136,13 @@ export interface AppDictionary {
         login: string;
     };
     resources: {
-        // resultsFound: ReactNode;
         title: string;
+        description: string;
+        resultsCount: string;
+
         filters: {
             title: string;
+            subtitle: string;
             category: string;
             type: string;
             year: string;
@@ -147,6 +150,10 @@ export interface AppDictionary {
             apply: string;
             clear: string;
             searchPlaceholder: string;
+            allTypes: string;
+            allYears: string;
+            allLanguages: string;
+            allCategories: string;
         };
         details: {
             abstract: string;
@@ -163,16 +170,27 @@ export interface AppDictionary {
             download: string;
             cite: string;
             share: string;
+            view: string;
             relatedResources: string;
         };
         types: {
-            book: string;
-            paper: string;
-            article: string;
-            thesis: string;
+            Thesis: string;
+            Journal: string;
+            Book: string;
+            Article: string;
+            Report: string;
+            Other: string;
         };
+        premium: string;
+        free: string;
         noResults: string;
         loading: string;
         error: string;
+        retry: string;
+        backToList: string;
+        notFound: {
+            title: string;
+            description: string;
+        };
     };
 }

@@ -6,493 +6,321 @@ const api = axios.create({
   withCredentials: true,
 });
 
-export const login = async (username, password) => {
-  const response = await api.post("/admins/login", { username, password }); // Adjusted to admin login
-  return response.data;
+// Update the interceptor to handle errors consistently
+api.interceptors.response.use(
+  (response) => response,
+  async (error) => {
+    if (error.response?.status === 401) {
+      // Only redirect if not already on login page and it's not a login request
+      if (
+        window.location.pathname !== "/login" &&
+        !error.config.url.includes("/login")
+      ) {
+        window.location.href = "/login";
+      }
+    }
+
+    // Format error message
+    const errorMessage =
+      error.response?.data?.error ||
+      error.response?.data?.message ||
+      error.message ||
+      "An unexpected error occurred";
+
+    const formattedError = new Error(errorMessage);
+    formattedError.status = error.response?.status;
+    formattedError.data = error.response?.data;
+    formattedError.response = error.response;
+
+    // Add validation errors if present
+    if (error.response?.data?.errors) {
+      formattedError.validationErrors = error.response.data.errors;
+    }
+
+    return Promise.reject(formattedError);
+  }
+);
+
+export const login = async (email, password) => {
+  try {
+    const response = await api.post("/auth/login/admin", { email, password });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Login failed");
+    }
+    return {
+      admin: response.data.admin,
+      message: response.data.message,
+    };
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const logout = async () => {
-  await api.post("/admins/logout"); // Adjusted to admin logout
+  try {
+    const response = await api.post("/auth/logout");
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Logout failed");
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const getUploadsUrl = (cloudinaryUrl) => {
   return cloudinaryUrl; // Cloudinary URLs are already fully qualified
 };
 
-export const updateUserProfile = async (userData) => {
+//generate code to connect to the backend api of get current admin
+export const getCurrentAdmin = async () => {
   try {
-    const response = await api.put("/users/me", userData);
-    return response.data;
+    const response = await api.get("/auth/me/admin");
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to get admin data");
+    }
+    return {
+      admin: response.data.admin,
+      message: response.data.message,
+    };
   } catch (error) {
-    throw error.response?.data || new Error("Failed to update profile");
+    throw error;
   }
 };
 
-export const fetchUsers = async () => {
-  const response = await api.get("/users");
-  return response.data;
-};
-export const createUser = async (userData) => {
-  const response = await api.post("/users", userData);
-  return response.data;
-};
-
-export const updateUser = async (id, userData) => {
-  const response = await api.put(`/users/${id}`, userData);
-  return response.data;
-};
-
-export const deleteUser = async (id) => {
-  const response = await api.delete(`/users/${id}`);
-  return response.data;
-};
-export const fetchFinancialData = async () => {
-  const response = await api.get("/financial/monthly");
-  return response.data;
-};
-export const fetchOrdersData = async () => {
-  const response = await api.get("/financial/orders");
-  return response.data;
-};
-export const fetchStatsData = async () => {
-  const response = await api.get("/stats");
-  return response.data;
+export const updateAdminProfile = async (data) => {
+  try {
+    const response = await api.put("/auth/admin/profile", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update profile");
+    }
+    return {
+      admin: response.data.admin,
+      message: response.data.message,
+    };
+  } catch (error) {
+    // Add validation error handling
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
 };
 
-// Client API functions
-export const fetchClients = async () => {
-  const response = await api.get("/clients");
-  return response.data;
+// Category Management API Methods
+export const fetchCategories = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/categories", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch categories");
+    }
+    return {
+      categories: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const createClient = async (clientData) => {
-  const response = await api.post("/clients", clientData);
-  return response.data;
+export const fetchCategoryById = async (id) => {
+  try {
+    const response = await api.get(`/admin/categories/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch category");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const updateClient = async (id, clientData) => {
-  const response = await api.put(`/clients/${id}`, clientData);
-  return response.data;
+export const createCategory = async (data) => {
+  try {
+    const response = await api.post("/admin/categories", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create category");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
-export const deleteClient = async (id) => {
-  const response = await api.delete(`/clients/${id}`);
-  return response.data;
-};
-
-export const getClientById = async (id) => {
-  const response = await api.get(`/clients/${id}`);
-  return response.data;
-};
-// Categories API functions
-export const fetchCategories = async () => {
-  const response = await api.get("/categories");
-  return response.data;
-};
-
-export const createCategory = async (categoryData) => {
-  const response = await api.post("/categories", categoryData);
-  return response.data;
-};
-
-export const updateCategory = async (id, categoryData) => {
-  const response = await api.put(`/categories/${id}`, categoryData);
-  return response.data;
+export const updateCategory = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/categories/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update category");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
 };
 
 export const deleteCategory = async (id) => {
-  const response = await api.delete(`/categories/${id}`);
-  return response.data;
-};
-
-export const getCategoryById = async (id) => {
-  const response = await api.get(`/categories/${id}`);
-  return response.data;
-};
-//fetch project api
-
-export const fetchResources = async () => {
   try {
-    const response = await api.get("/resources");
-    return response.data;
+    const response = await api.delete(`/admin/categories/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete category");
+    }
+    return response.data.message;
   } catch (error) {
     throw error;
   }
 };
 
-export const getProjectById = async (id) => {
-  const response = await api.get(`/resources/${id}`);
-  return response.data;
-};
-export const updateProject = async (id, updatedProject) => {
-  const response = await api.put(`/resources/${id}`, updatedProject);
-  return response.data;
-};
-export const createResource = async (newProject) => {
-  const response = await api.post(`/resources/`, newProject);
-  return response.data;
-};
-export const deleteResource = async (id) => {
+// User Management API Methods
+export const fetchUsers = async (params = {}) => {
   try {
-    const response = await api.delete(`/resources/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-//CameraSetup
-export const fetchCameraSetups = async () => {
-  try {
-    const response = await api.get("/camera-setups");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getCameraSetupById = async (id) => {
-  const response = await api.get(`/camera-setups/${id}`);
-  return response.data;
-};
-
-export const updateCameraSetup = async (id, updatedCameraSetup) => {
-  const response = await api.put(`/camera-setups/${id}`, updatedCameraSetup);
-  return response.data;
-};
-
-export const createCameraSetup = async (newCameraSetup) => {
-  const response = await api.post(`/camera-setups/`, newCameraSetup);
-  return response.data;
-};
-
-export const deleteCameraSetup = async (id) => {
-  try {
-    const response = await api.delete(`/camera-setups/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-//Service api
-
-export const fetchServices = async () => {
-  try {
-    const response = await api.get("/services");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const fetchCompletedServices = async () => {
-  try {
-    const response = await api.get("/services/completed");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const getServiceById = async (id) => {
-  const response = await api.get(`/services/${id}`);
-  return response.data;
-};
-export const updateService = async (id, updatedService) => {
-  const response = await api.put(`/services/${id}`, updatedService);
-  return response.data;
-};
-export const createService = async (newService) => {
-  const response = await api.post(`/services/`, newService);
-  return response.data;
-};
-export const deleteService = async (id) => {
-  try {
-    const response = await api.delete(`/services/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-//payments Api
-
-export const fetchPayments = async () => {
-  try {
-    const response = await api.get("/payments");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const fetchAccounts = async () => {
-  try {
-    const response = await api.get("/payments/accounts");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-
-export const deletePayment = async (id) => {
-  try {
-    const response = await api.delete(`/payments/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-// services/api.js
-export const transferFunds = async (fromMethodId, toMethodId, amount) => {
-  try {
-    const response = await api.post("/payments/transfer", {
-      fromMethodId,
-      toMethodId,
-      amount: parseFloat(amount),
-    });
-    return response.data;
-  } catch (error) {
-    // Extract error message and code from the response
-    const errorMessage = error.response?.data?.message || "Transfer failed";
-    const errorCode = error.response?.data?.code || "UNKNOWN_ERROR";
-
-    // Create a custom error with additional information
-    const customError = new Error(errorMessage);
-    customError.code = errorCode;
-
-    throw customError;
-  }
-};
-//order APi
-export const fetchServiceOrders = async () => {
-  const response = await api.get("/orders/service");
-  return response.data;
-};
-
-export const fetchProjectOrders = async () => {
-  const response = await api.get("/orders/project");
-  return response.data;
-};
-
-export const fetchCameraOrders = async () => {
-  const response = await api.get("/orders/camera");
-  return response.data;
-};
-
-// Get Order by ID
-export const getOrderById = async (id) => {
-  const response = await api.get(`/orders/${id}`);
-  return response.data;
-};
-
-// // Create a New Order
-export const createOrder = async (orderData) => {
-  try {
-    const response = await api.post("/orders/add", orderData);
-    return response.data;
-  } catch (error) {
-    // Return the error response in a consistent format
+    const response = await api.get("/admin/users", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch users");
+    }
     return {
-      success: false,
-      error:
-        error.response?.data?.error ||
-        error.message ||
-        "Failed to create order",
+      users: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
     };
-  }
-};
-
-// // Update an Existing Order
-export const updateOrder = async (id, orderData) => {
-  const response = await api.put(`/orders/${id}`, orderData);
-  try {
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || new Error("Failed to update order details");
-  }
-};
-export const updateOrderStatus = async (id, orderData) => {
-  const response = await api.put(`/orders/status/${id}`, orderData);
-  return response.data;
-};
-export const updateOrderDates = async (updateData) => {
-  try {
-    const response = await api.post("/orders/details", updateData, {});
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || new Error("Failed to update order details");
-  }
-};
-
-// Delete an Order with Validation
-export const deleteOrder = async (id) => {
-  const response = await api.delete(`/orders/${id}`);
-  return response.data;
-};
-//apointments
-export const fetchAppointments = async () => {
-  try {
-    const response = await api.get("/appointments");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const createAppointment = async (appointmentData) => {
-  try {
-    const response = await api.post("/appointments", appointmentData);
-    return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const updateAppointment = async (id, appointmentData) => {
+export const fetchUserById = async (id) => {
   try {
-    const response = await api.put(`/appointments/${id}`, appointmentData);
-    return response.data;
+    const response = await api.get(`/admin/users/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch user");
+    }
+    return response.data.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const deleteAppointment = async (id) => {
+export const createUser = async (data) => {
   try {
-    const response = await api.delete(`/appointments/${id}`);
-    return response.data;
+    const response = await api.post("/admin/users", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create user");
+    }
+    return response.data.data;
+  } catch (error) {
+    // Add validation error handling
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateUser = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/users/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update user");
+    }
+    return response.data.data;
+  } catch (error) {
+    // Add validation error handling
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteUser = async (id) => {
+  try {
+    const response = await api.delete(`/admin/users/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete user");
+    }
+    return response.data.message;
   } catch (error) {
     throw error;
   }
 };
 
-export const fetchAvailableSlots = async (date) => {
+// Admin Management API Methods
+export const fetchAdmins = async (params = {}) => {
   try {
-    const response = await api.get(
-      `/appointments/available-slots?date=${date}`
-    );
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-//reports
-export const fetchReportData = async (reportType, filters = {}) => {
-  try {
-    const queryParams = new URLSearchParams();
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) queryParams.append(key, value);
-    });
-
-    const response = await api.get(`/reports/${reportType}?${queryParams}`);
-    return response.data;
+    const response = await api.get("/admin/admins", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch admins");
+    }
+    return {
+      admins: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
   } catch (error) {
     throw error;
   }
 };
 
-//user assigns
-export const fetchUserAssigns = async () => {
+export const fetchAdminById = async (id) => {
   try {
-    const response = await api.get("/userassigns");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const createUserAssignment = async (assignmentData) => {
-  try {
-    const response = await api.post("/userassigns", assignmentData);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const deleteUserAssign = async (assignId) => {
-  try {
-    const response = await api.delete(`/userassigns/${assignId}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-//Expenses assigns
-export const fetchExpenses = async () => {
-  try {
-    const response = await api.get("/expenses");
-    return response.data;
+    const response = await api.get(`/admin/admins/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch admin");
+    }
+    return response.data.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const createExpense = async (expenseData) => {
+export const createAdmin = async (data) => {
   try {
-    const response = await api.post("/expenses", expenseData);
-    return response.data;
+    const response = await api.post("/admin/admins", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create admin");
+    }
+    return response.data.data;
   } catch (error) {
+    // Add validation error handling
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
     throw error;
   }
 };
 
-export const updateExpense = async (id, expenseData) => {
+export const updateAdmin = async (id, data) => {
   try {
-    const response = await api.put(`/expenses/${id}`, expenseData);
-    return response.data;
+    const response = await api.put(`/admin/admins/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update admin");
+    }
+    return response.data.data;
   } catch (error) {
+    // Add validation error handling
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
     throw error;
   }
 };
 
-export const deleteExpense = async (id) => {
+export const deleteAdmin = async (id) => {
   try {
-    const response = await api.delete(`/expenses/${id}`);
-    return response.data;
+    const response = await api.delete(`/admin/admins/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete admin");
+    }
+    return response.data.message;
   } catch (error) {
     throw error;
-  }
-};
-//Staff APi
-export const fetchStaffServices = async () => {
-  try {
-    const response = await api.get("/userassigns/services");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const getStaffServiceById = async (id) => {
-  const response = await api.get(`/userassigns/services/${id}`);
-  return response.data;
-};
-export const fetchStaffStats = async () => {
-  const response = await api.get(`/stats/staff/`);
-  return response.data;
-};
-export const fetchStaffOrders = async () => {
-  try {
-    const response = await api.get("/userassigns/orders");
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
-export const getStaffOrderById = async (id) => {
-  const response = await api.get(`/userassigns/orders/${id}`);
-  return response.data;
-};
-export const UpdateOrderStaff = async (updateData) => {
-  try {
-    const response = await api.post("/orders/staff", updateData, {});
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || new Error("Failed to update order details");
-  }
-};
-export const UpdateServiceResponse = async (updateData) => {
-  try {
-    const response = await api.put("/userassigns/update-response", updateData);
-    return response.data;
-  } catch (error) {
-    throw (
-      error.response?.data || new Error("Failed to update service response")
-    );
   }
 };
 

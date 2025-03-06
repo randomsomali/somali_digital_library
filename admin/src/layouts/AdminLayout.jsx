@@ -9,7 +9,8 @@ import {
   Folder,
   User,
   FileText,
-
+  Building2, CreditCard,
+  UserCog, School
 } from 'lucide-react';
 import {
   AlertDialog,
@@ -37,7 +38,7 @@ import { Button } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 import logiImage from '../assets/tahqiq.png';
-import UpdateUserModal from '@/components/updateProfile';
+import UpdateAdminModal from '@/components/admin/UpdateAdminModal';
 
 const AdminLayout = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -48,7 +49,7 @@ const AdminLayout = () => {
   const sidebarRef = useRef(null);
   const [openSubmenu, setOpenSubmenu] = useState(false);
   const [isLogoutDialogOpen, setIsLogoutDialogOpen] = useState(false);
-const [showProfileModal, setShowProfileModal] = useState(false);
+  const [showProfileModal, setShowProfileModal] = useState(false);
 
   const handleLogout = () => {
     setIsLogoutDialogOpen(false);
@@ -94,10 +95,12 @@ const [showProfileModal, setShowProfileModal] = useState(false);
 
   const adminMenuItems = [
     { path: '/admin/dashboard', icon: <Home size={24} />, label: 'Dashboard' },
-    { path: '/admin/clients', icon: <Users size={24} />, label: 'Clients' },
-    { path: '/admin/categories', icon: <Book size={24} />, label: 'Categories' },
     { path: '/admin/resources', icon: <Folder size={24} />, label: 'Resources' },
-    { path: '/admin/users', icon: <User size={24} />, label: 'Users' },
+    { path: '/admin/categories', icon: <Book size={24} />, label: 'Categories' },
+    { path: '/admin/users', icon: <Users size={24} />, label: 'Users' },
+    { path: '/admin/admins', icon: <UserCog size={24} />, label: 'Admins' },
+    { path: '/admin/institutions', icon: <School size={24} />, label: 'Institutions' },
+    { path: '/admin/subscriptions', icon: <CreditCard size={24} />, label: 'Subscriptions' },
     { path: '/admin/reports', icon: <FileText size={24} />, label: 'Reports' },
   ];
 
@@ -261,8 +264,8 @@ const [showProfileModal, setShowProfileModal] = useState(false);
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10 rounded-full">
                     <Avatar>
-                      <AvatarFallback className="bg-primary/10 text-xs sm:text-sm">
-                        {admin?.username?.charAt(0)}
+                      <AvatarFallback className="bg-primary/10">
+                        {admin?.fullname?.charAt(0).toUpperCase()}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -270,21 +273,24 @@ const [showProfileModal, setShowProfileModal] = useState(false);
                 <DropdownMenuContent className="w-56" align="end" forceMount>
                   <DropdownMenuLabel className="font-normal">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium leading-none">{admin?.username}</p>
+                      <p className="text-sm font-medium leading-none">{admin?.fullname}</p>
                       <p className="text-xs leading-none text-muted-foreground">
+                        {admin?.email}
+                      </p>
+                      <p className="text-xs leading-none text-muted-foreground capitalize">
                         {admin?.role}
                       </p>
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuGroup>
-                  <DropdownMenuItem onSelect={(e) => {
-  e.preventDefault();
-  setShowProfileModal(true);
-}}>
-  <Settings className="mr-2 h-4 w-4" />
-  <span>Profile</span>
-</DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => {
+                      e.preventDefault();
+                      setShowProfileModal(true);
+                    }}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Profile Settings</span>
+                    </DropdownMenuItem>
                   </DropdownMenuGroup>
                   <DropdownMenuSeparator />
   <AlertDialog open={isLogoutDialogOpen} onOpenChange={setIsLogoutDialogOpen}>
@@ -331,16 +337,12 @@ const [showProfileModal, setShowProfileModal] = useState(false);
           </div>
         </main>
       </div>
-{showProfileModal && (
-  <UpdateUserModal
-    user={admin}
-    onClose={() => setShowProfileModal(false)}
-    onUserUpdated={(updatedUser) => {
-      // Update the user context or state here
-      setShowProfileModal(false);
-    }}
-  />
-)}
+
+      <UpdateAdminModal
+        admin={admin}
+        isOpen={showProfileModal}
+        onClose={() => setShowProfileModal(false)}
+      />
     </div>
     
   );

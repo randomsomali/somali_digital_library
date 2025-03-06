@@ -1,39 +1,160 @@
-const pool = require("../config/db");
+import db from "../config/db.js";
+import AuthService from "../services/authService.js";
 
 class Admin {
-  static async getAllAdmins() {
-    const query = "SELECT * FROM admins ORDER BY id DESC";
-    const [rows] = await pool.query(query);
-    return rows;
+  static async findByEmail(email, selectPassword = true) {
+    const fields = selectPassword
+      ? "admin_id, email, password, fullname, role, created_at"
+      : "admin_id, email, fullname, role, created_at";
+
+    const sql = `SELECT ${fields} FROM admins WHERE email = ?`;
+    const admins = await db.query(sql, [email]);
+    return admins[0];
   }
 
-  static async createAdmin(newAdmin) {
-    const [result] = await pool.query("INSERT INTO admins SET ?", newAdmin);
-    return result;
+  static async findById(id, selectPassword = false) {
+    const fields = selectPassword
+      ? "admin_id, email, password, fullname, role, created_at"
+      : "admin_id, email, fullname, role, created_at";
+
+    const sql = `SELECT ${fields} FROM admins WHERE admin_id = ?`;
+    const admins = await db.query(sql, [id]);
+    return admins[0];
   }
 
-  static async updateAdmin(id, updatedAdmin) {
-    const query = "UPDATE admins SET ? WHERE id = ?";
-    const [result] = await pool.query(query, [updatedAdmin, id]);
-    return result;
+  static async findAllForAdmin(filters = {}) {
+    const page = Math.max(1, parseInt(filters.page) || 1);
+    const limit = Math.min(50, Math.max(5, parseInt(filters.limit) || 15));
+
+    let sql = `
+      SELECT 
+        admin_id,
+        fullname,
+        email,
+        role,
+        created_at
+      FROM admins
+      WHERE 1=1
+    `;
+
+    const params = [];
+
+    if (filters.search) {
+      sql += ` AND (fullname LIKE ? OR email LIKE ?)`;
+      const searchTerm = `%${filters.search}%`;
+      params.push(searchTerm, searchTerm);
+    }
+
+    if (filters.role && filters.role !== "all") {
+      sql += ` AND role = ?`;
+      params.push(filters.role);
+    }
+
+    // Get total count before pagination
+    const countSql = `SELECT COUNT(*) as total FROM admins WHERE 1=1 ${
+      sql.split("WHERE 1=1")[1] || ""
+    }`;
+
+    const [countResult] = await db.query(countSql, params);
+    const total = parseInt(countResult.total);
+    const totalPages = Math.ceil(total / limit);
+
+    sql += ` ORDER BY created_at DESC LIMIT ? OFFSET ?`;
+    const offset = (page - 1) * limit;
+    params.push(limit, offset);
+
+    const admins = await db.query(sql, params);
+
+    return {
+      admins,
+      total,
+      totalPages,
+      page,
+      limit,
+    };
   }
 
-  static async deleteAdmin(id) {
-    const query = "DELETE FROM admins WHERE id = ?";
-    const [result] = await pool.query(query, [id]);
-    return result;
+  static async findByIdForAdmin(id) {
+    const sql = `
+      SELECT 
+        admin_id,
+        fullname,
+        email,
+        role,
+        created_at
+      FROM admins
+      WHERE admin_id = ?
+    `;
+
+    const [admin] = await db.query(sql, [id]);
+    return admin || null;
   }
 
-  static async getAdminByUsername(username) {
-    const query = "SELECT * FROM admins WHERE username = ?";
-    const [rows] = await pool.query(query, [username]);
-    return rows[0];
+  static async create(data) {
+    const sql = `
+      INSERT INTO admins (
+        fullname, email, password, role
+      ) VALUES (?, ?, ?, ?)
+    `;
+
+    const result = await db.query(sql, [
+      data.fullname,
+      data.email,
+      data.password,
+      data.role || "staff",
+    ]);
+
+    return result.insertId;
   }
-  static async getAdminById(id) {
-    const query = "SELECT * FROM admins WHERE id = ?";
-    const [rows] = await pool.query(query, [id]);
-    return rows[0];
+
+  static async update(id, data) {
+    const updateFields = [];
+    const params = [];
+
+    if (data.fullname !== undefined) {
+      updateFields.push("fullname = ?");
+      params.push(data.fullname);
+    }
+
+    if (data.email !== undefined) {
+      updateFields.push("email = ?");
+      params.push(data.email);
+    }
+
+    if (data.password !== undefined) {
+      updateFields.push("password = ?");
+      params.push(data.password);
+    }
+
+    if (data.role !== undefined) {
+      updateFields.push("role = ?");
+      params.push(data.role);
+    }
+
+    if (updateFields.length === 0) return this.findByIdForAdmin(id);
+
+    params.push(id);
+
+    const sql = `
+      UPDATE admins 
+      SET ${updateFields.join(", ")}
+      WHERE admin_id = ?
+    `;
+
+    await db.query(sql, params);
+    return this.findByIdForAdmin(id);
+  }
+
+  static async delete(id) {
+    const sql = `DELETE FROM admins WHERE admin_id = ?`;
+    await db.query(sql, [id]);
+  }
+
+  static async checkEmailExists(email, excludeId = null) {
+    const sql = "SELECT admin_id FROM admins WHERE email = ? AND admin_id != ?";
+    const result = await db.query(sql, [email, excludeId || 0]);
+    return result.length > 0;
   }
 }
 
-module.exports = Admin;
+export default Admin;
