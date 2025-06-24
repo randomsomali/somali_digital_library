@@ -10,10 +10,7 @@ import {
   Users,
   FileText,
   Download,
-  Quote,
   Share2,
-  BookOpen,
-  Tag,
   Building,
   Hash,
   Book,
@@ -154,11 +151,13 @@ export function ResourceDetails({
         description: "Your resource is being downloaded.",
       });
       setTimeout(() => setDownloadStatus("idle"), 2000);
-    } catch (error: any) {
+    } catch (error: unknown) {
       setDownloadStatus("error");
+      let message = "Failed to download resource.";
+      if (error instanceof Error) message = error.message;
       toast({
         title: "Download Failed",
-        description: error.message || "Failed to download resource.",
+        description: message,
         variant: "destructive",
       });
       setTimeout(() => setDownloadStatus("idle"), 3000);

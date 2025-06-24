@@ -4,14 +4,7 @@ import { Resource } from "@/types/resource";
 import { AppDictionary } from "@/types/dictionary";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Calendar,
-  Users,
-  FileText,
-  BookOpen,
-  Download,
-  ArrowRight,
-} from "lucide-react";
+import { Calendar, Users, FileText, BookOpen, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 interface ResourceListProps {

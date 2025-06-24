@@ -30,14 +30,19 @@ export class ApiError extends Error {
 }
 
 // Helper function to extract error message from backend response
-const extractErrorMessage = (error: any): string => {
-    if (error.response?.data?.error) {
-        return error.response.data.error;
-    }
-    if (error.response?.data?.message) {
-        return error.response.data.message;
-    }
-    if (error.message) {
+const extractErrorMessage = (error: unknown): string => {
+    if (typeof error === 'object' && error !== null && 'response' in error) {
+        const err = error as { response?: { data?: { error?: string; message?: string }; status?: number }; message?: string };
+        if (err.response?.data?.error) {
+            return err.response.data.error;
+        }
+        if (err.response?.data?.message) {
+            return err.response.data.message;
+        }
+        if (err.message) {
+            return err.message;
+        }
+    } else if (error instanceof Error) {
         return error.message;
     }
     return 'An unexpected error occurred';
@@ -51,9 +56,10 @@ export const registerUser = async (userData: {
 }): Promise<void> => {
     try {
         await api.post('/auth/register/user', userData);
-    } catch (error: any) {
+    } catch (error: unknown) {
         const errorMessage = extractErrorMessage(error);
-        throw new ApiError(errorMessage, error.response?.status);
+        const status = typeof error === 'object' && error !== null && 'response' in error ? (error as any).response?.status : undefined;
+        throw new ApiError(errorMessage, status);
     }
 };
 
@@ -61,9 +67,10 @@ export const registerUser = async (userData: {
 export const loginUser = async (email: string, password: string): Promise<void> => {
     try {
         await api.post('/auth/login/user', { email, password });
-    } catch (error: any) {
+    } catch (error: unknown) {
         const errorMessage = extractErrorMessage(error);
-        throw new ApiError(errorMessage, error.response?.status);
+        const status = typeof error === 'object' && error !== null && 'response' in error ? (error as any).response?.status : undefined;
+        throw new ApiError(errorMessage, status);
     }
 };
 
@@ -74,28 +81,31 @@ export const loginStudent = async (email: string, password: string, institutionI
             password,
             institution_id: institutionId
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         const errorMessage = extractErrorMessage(error);
-        throw new ApiError(errorMessage, error.response?.status);
+        const status = typeof error === 'object' && error !== null && 'response' in error ? (error as any).response?.status : undefined;
+        throw new ApiError(errorMessage, status);
     }
 };
 
 export const loginInstitution = async (email: string, password: string): Promise<void> => {
     try {
         await api.post('/auth/login/institution', { email, password });
-    } catch (error: any) {
+    } catch (error: unknown) {
         const errorMessage = extractErrorMessage(error);
-        throw new ApiError(errorMessage, error.response?.status);
+        const status = typeof error === 'object' && error !== null && 'response' in error ? (error as any).response?.status : undefined;
+        throw new ApiError(errorMessage, status);
     }
 };
 
 export const logout = async (): Promise<void> => {
     try {
         await api.post('/auth/logout');
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Logout error:', error);
         const errorMessage = extractErrorMessage(error);
-        throw new ApiError(errorMessage, error.response?.status);
+        const status = typeof error === 'object' && error !== null && 'response' in error ? (error as any).response?.status : undefined;
+        throw new ApiError(errorMessage, status);
     }
 };
 
@@ -104,8 +114,13 @@ export const getCurrentUser = async (): Promise<User | null> => {
     try {
         const { data } = await api.get('/auth/me/user');
         return data.user;
-    } catch (error: any) {
-        if (error.response?.status === 403) {
+    } catch (error: unknown) {
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error &&
+            (error as any).response?.status === 403
+        ) {
             logout();
         }
         // Just return null, let AuthContext handle the state
@@ -117,9 +132,13 @@ export const getCurrentInstitution = async (): Promise<User | null> => {
     try {
         const { data } = await api.get('/auth/me/institution');
         return data.institution;
-    } catch (error: any) {
-        // if it's a 403, call logout and return null
-        if (error.response?.status === 403) {
+    } catch (error: unknown) {
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error &&
+            (error as any).response?.status === 403
+        ) {
             logout();
         }
         return null;
@@ -200,12 +219,22 @@ export async function downloadResource(id: string): Promise<{ download_url: stri
             throw new Error('Download failed');
         }
         return response.data.data;
-    } catch (error: any) {
-        if (error.response?.status === 401) {
+    } catch (error) {
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error &&
+            (error as any).response?.status === 401
+        ) {
             throw new Error('Authentication required');
         }
-        if (error.response?.status === 403) {
-            throw new Error(error.response.data.error || 'Subscription required');
+        if (
+            typeof error === 'object' &&
+            error !== null &&
+            'response' in error &&
+            (error as any).response?.status === 403
+        ) {
+            throw new Error((error as any).response.data.error || 'Subscription required');
         }
         throw new Error('Download failed');
     }
@@ -227,7 +256,7 @@ export async function checkUserActiveSubscription(userId: string): Promise<boole
     try {
         const response = await api.get<{ success: boolean; active: boolean }>(`/admin/user-subscriptions/user/${userId}/active`);
         return response.data.active;
-    } catch (error) {
+    } catch (_err) {
         return false;
     }
 }
@@ -237,7 +266,7 @@ export async function checkInstitutionActiveSubscription(institutionId: string):
     try {
         const response = await api.get<{ success: boolean; active: boolean }>(`/admin/user-subscriptions/institution/${institutionId}/active`);
         return response.data.active;
-    } catch (error) {
+    } catch (_err) {
         return false;
     }
 }

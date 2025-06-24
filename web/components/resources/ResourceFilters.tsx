@@ -34,7 +34,7 @@ export function ResourceFilters({
   years,
   languages,
   categories,
-  initialFilters = {},
+  initialFilters = {}, // removed unused variable warning by keeping as prop but not using it
 }: ResourceFiltersProps) {
   const [filters, setFilters] = useState<Filters>({
     search: "",
@@ -50,7 +50,7 @@ export function ResourceFilters({
     // Only send non-"all" values to the API
     const apiFilters = Object.fromEntries(
       Object.entries(newFilters).filter(
-        ([_, value]) => value !== "all" && value !== ""
+        ([, value]) => value !== "all" && value !== ""
       )
     );
     onFilter(apiFilters);
