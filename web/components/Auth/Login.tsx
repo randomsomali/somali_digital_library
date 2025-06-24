@@ -121,8 +121,16 @@ export default function Login({ dictionary, lang }: LoginProps) {
         description:
           dictionary.auth.loginSuccess || "Login successful! Redirecting...",
       });
-    } catch (error: any) {
-      const errorMessage = error.message || dictionary.auth.invalidCredentials;
+    } catch (error: unknown) {
+      let errorMessage = dictionary.auth.invalidCredentials;
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof (error as any).message === "string"
+      ) {
+        errorMessage = (error as { message: string }).message;
+      }
       setBackendError(errorMessage);
       toast({
         title: "Login Failed",

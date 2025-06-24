@@ -35,17 +35,19 @@ export function Footer({ dictionary, lang }: FooterProps) {
               {dictionary.footer.quickLinks.title}
             </h3>
             <ul className="space-y-3">
-              {dictionary.footer.quickLinks.links.map((link: any) => (
-                <li key={link.href}>
-                  <Link
-                    href={`/${lang}${link.href}`}
-                    className="text-base text-muted-foreground hover:text-primary transition-colors duration-300 relative group"
-                  >
-                    {link.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-                  </Link>
-                </li>
-              ))}
+              {dictionary.footer.quickLinks.links.map(
+                (link: { href: string; label: string }) => (
+                  <li key={link.href}>
+                    <Link
+                      href={`/${lang}${link.href}`}
+                      className="text-base text-muted-foreground hover:text-primary transition-colors duration-300 relative group"
+                    >
+                      {link.label}
+                      <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 
@@ -55,17 +57,19 @@ export function Footer({ dictionary, lang }: FooterProps) {
               {dictionary.footer.resources.title}
             </h3>
             <ul className="space-y-3">
-              {dictionary.footer.resources.links.map((link: any) => (
-                <li key={link.href}>
-                  <Link
-                    href={`/${lang}${link.href}`}
-                    className="text-base text-muted-foreground hover:text-primary transition-colors duration-300 relative group"
-                  >
-                    {link.label}
-                    <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
-                  </Link>
-                </li>
-              ))}
+              {dictionary.footer.resources.links.map(
+                (link: { href: string; label: string }) => (
+                  <li key={link.href}>
+                    <Link
+                      href={`/${lang}${link.href}`}
+                      className="text-base text-muted-foreground hover:text-primary transition-colors duration-300 relative group"
+                    >
+                      {link.label}
+                      <span className="absolute -bottom-0.5 left-0 w-0 h-0.5 bg-primary group-hover:w-full transition-all duration-300" />
+                    </Link>
+                  </li>
+                )
+              )}
             </ul>
           </div>
 

@@ -2,26 +2,16 @@
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion } from "framer-motion";
 import { AppDictionary } from "@/types/dictionary";
 import {
   BookOpen,
-  Users,
-  Globe,
-  Award,
   Target,
   Heart,
   Lightbulb,
   Shield,
   ArrowRight,
-  Sparkles,
   Library,
   GraduationCap,
   Globe2,
@@ -61,29 +51,6 @@ export function AboutUs({ dictionary, lang }: AboutUsProps) {
   //       description: dictionary.about.stats.yearsDesc,
   //     },
   //   ];
-
-  const values = [
-    {
-      icon: Heart,
-      title: dictionary.about.values.preservation.title,
-      description: dictionary.about.values.preservation.description,
-    },
-    {
-      icon: Users2,
-      title: dictionary.about.values.community.title,
-      description: dictionary.about.values.community.description,
-    },
-    {
-      icon: Lightbulb,
-      title: dictionary.about.values.innovation.title,
-      description: dictionary.about.values.innovation.description,
-    },
-    {
-      icon: Shield,
-      title: dictionary.about.values.accessibility.title,
-      description: dictionary.about.values.accessibility.description,
-    },
-  ];
 
   const features = [
     {

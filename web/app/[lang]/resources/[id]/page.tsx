@@ -32,6 +32,9 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
       </main>
     );
   } catch (error) {
+    //use a more specific error type if available
+    console.error("Failed to fetch resource:", error);
+    // If the resource is not found, render the ResourceNotFound component
     return (
       <main className="min-h-screen bg-background pt-32 pb-20">
         <div className="container px-4">

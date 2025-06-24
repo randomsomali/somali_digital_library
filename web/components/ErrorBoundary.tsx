@@ -20,7 +20,7 @@ export class ErrorBoundary extends React.Component<
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError(_: Error): ErrorBoundaryState {
+  static getDerivedStateFromError(__: Error): ErrorBoundaryState {
     return { hasError: true };
   }
 
@@ -35,4 +35,4 @@ export class ErrorBoundary extends React.Component<
 
     return this.props.children;
   }
-} 
+}

@@ -231,8 +231,8 @@ Please set up my subscription manually. Thank you!`;
               <CardContent className="pt-6">
                 <h3 className="text-lg font-semibold mb-2">How it works</h3>
                 <p className="text-muted-foreground">
-                  Click on any plan to contact us via WhatsApp. We'll set up
-                  your subscription manually and provide you with access
+                  Click on any plan to contact us via WhatsApp. We&apos;ll set
+                  up your subscription manually and provide you with access
                   credentials within 24 hours.
                 </p>
               </CardContent>

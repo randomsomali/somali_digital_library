@@ -4,9 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import Image from "next/image";
-import { Search, Sparkles, Users, ArrowRight } from "lucide-react";
-import heroImage from "../../public/images/hero.png";
+import { Search, Users, ArrowRight } from "lucide-react";
 import { AppDictionary } from "@/types/dictionary";
 import Link from "next/link";
 import { useState } from "react";
@@ -33,7 +31,7 @@ export function Hero({ dictionary, lang }: HeroProps) {
             variant="secondary"
             className="gap-2 px-4 py-2 bg-gradient-to-r from-violet-500/10 to-purple-500/10 border border-violet-500/20 text-violet-700 dark:text-violet-300 hover:from-violet-500/20 hover:to-purple-500/20 transition-all duration-300"
           >
-            <Sparkles className="w-4 h-4" />
+            {/* <Sparkles className="w-4 h-4" /> */}
             <span className="text-sm font-medium">
               {dictionary.home.hero.announcement}
             </span>

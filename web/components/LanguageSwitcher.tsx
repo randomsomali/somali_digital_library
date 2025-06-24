@@ -3,7 +3,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect, useRef } from "react";
-import { Globe, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import Image from "next/image";
 
 // Helper to set cookie

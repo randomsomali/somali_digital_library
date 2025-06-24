@@ -5,14 +5,8 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, ChevronDown, Star, Users, User } from "lucide-react";
+import { Menu, Users, User } from "lucide-react";
 import { ThemeToggler } from "../ThemeToggler";
 import { LanguageSwitcher } from "../LanguageSwitcher";
 import { motion, AnimatePresence } from "framer-motion";
@@ -27,7 +21,6 @@ interface NavbarProps {
 export function Navbar({ dictionary, lang }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const pathname = usePathname();
   const { user, isAuthenticated } = useAuth();
 
   useEffect(() => {
@@ -37,21 +30,6 @@ export function Navbar({ dictionary, lang }: NavbarProps) {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const resources = [
-    {
-      label: dictionary.navigation.categories.educational,
-      href: `/${lang}/resources?category_id=1`,
-    },
-    {
-      label: dictionary.navigation.categories.scientific,
-      href: `/${lang}/resources?category_id=2`,
-    },
-    {
-      label: dictionary.navigation.categories.literature,
-      href: `/${lang}/resources?category_id=3`,
-    },
-  ];
 
   // Get dashboard route based on user type
   const getDashboardRoute = () => {

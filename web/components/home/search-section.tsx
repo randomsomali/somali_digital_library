@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Sparkles } from "lucide-react";
+import { Search } from "lucide-react";
 import { AppDictionary } from "@/types/dictionary";
 import Link from "next/link";
 import { motion } from "framer-motion";

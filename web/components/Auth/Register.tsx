@@ -17,7 +17,6 @@ import { motion } from "framer-motion";
 import Link from "next/link";
 import { AppDictionary } from "@/types/dictionary";
 import { useAuth } from "@/contexts/AuthContext";
-import { useRouter } from "next/navigation";
 import { AlertCircle } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -37,8 +36,7 @@ export default function Register({ dictionary, lang }: RegisterProps) {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [backendError, setBackendError] = useState<string>("");
 
-  const { login, register } = useAuth();
-  const router = useRouter();
+  const { register } = useAuth();
   const { toast } = useToast();
 
   const validateForm = () => {
@@ -104,9 +102,16 @@ export default function Register({ dictionary, lang }: RegisterProps) {
           dictionary.auth.registerSuccess ||
           "Registration successful! You have been logged in.",
       });
-    } catch (error: any) {
-      const errorMessage =
-        error.message || "Registration failed. Please try again.";
+    } catch (error: unknown) {
+      let errorMessage = "Registration failed. Please try again.";
+      if (
+        error &&
+        typeof error === "object" &&
+        "message" in error &&
+        typeof (error as { message?: unknown }).message === "string"
+      ) {
+        errorMessage = (error as { message: string }).message;
+      }
       setBackendError(errorMessage);
       toast({
         title: "Registration Failed",

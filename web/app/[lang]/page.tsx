@@ -2,8 +2,6 @@
 import { getDictionary } from "@/lib/dictionary";
 import { Hero } from "@/components/home/hero";
 import { Stats } from "@/components/home/stats";
-import { FeaturedCategories } from "@/components/home/featured-categories";
-import { SearchSection } from "@/components/home/search-section";
 import { AboutUs } from "@/components/about/about-us";
 
 export default async function Home({ params }: { params: { lang: string } }) {
