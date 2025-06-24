@@ -50,32 +50,11 @@ export const getAdminDetails = async (req, res, next) => {
 
 export const createAdmin = async (req, res, next) => {
   try {
-    const { fullname, email, password, role } = req.body;
-
-    // Validate required fields
-    if (!fullname || !email || !password) {
-      return res.status(400).json({
-        success: false,
-        error: "Fullname, email, and password are required",
-      });
-    }
-
-    // Validate role if provided
-    if (role && !["admin", "staff"].includes(role)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid role. Must be 'admin' or 'staff'",
-      });
-    }
-
-    // Hash password
-    const hashedPassword = await AuthService.hashPassword(password);
-
+    // Validation is now handled by middleware
+    const hashedPassword = await AuthService.hashPassword(req.body.password);
     const adminId = await Admin.create({
-      fullname,
-      email,
-      password: hashedPassword,
-      role: role || "staff",
+      ...req.body,
+      password: hashedPassword
     });
 
     const admin = await Admin.findByIdForAdmin(adminId);
@@ -97,8 +76,6 @@ export const createAdmin = async (req, res, next) => {
 
 export const updateAdmin = async (req, res, next) => {
   try {
-    const { fullname, email, password, role } = req.body;
-
     const admin = await Admin.findByIdForAdmin(req.params.id);
     if (!admin) {
       return res.status(404).json({
@@ -107,22 +84,11 @@ export const updateAdmin = async (req, res, next) => {
       });
     }
 
-    // Validate role if provided
-    if (role && !["admin", "staff"].includes(role)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid role. Must be 'admin' or 'staff'",
-      });
+    // Hash password if provided
+    const updateData = { ...req.body };
+    if (updateData.password) {
+      updateData.password = await AuthService.hashPassword(updateData.password);
     }
-
-    // Prepare update data
-    const updateData = {};
-    if (fullname) updateData.fullname = fullname;
-    if (email) updateData.email = email;
-    if (password) {
-      updateData.password = await AuthService.hashPassword(password);
-    }
-    if (role) updateData.role = role;
 
     const updatedAdmin = await Admin.update(req.params.id, updateData);
 

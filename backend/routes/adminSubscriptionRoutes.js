@@ -7,6 +7,7 @@ import {
   deleteSubscription,
 } from "../controllers/adminSubscriptionController.js";
 import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
+import { validateSubscription } from "../middleware/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -20,10 +21,10 @@ router.get("/", getAllSubscriptions);
 router.get("/:id", getSubscriptionDetails);
 
 // Create new subscription
-router.post("/", createSubscription);
+router.post("/", validateSubscription(), createSubscription);
 
 // Update subscription
-router.put("/:id", updateSubscription);
+router.put("/:id", validateSubscription(), updateSubscription);
 
 // Delete subscription
 router.delete("/:id", deleteSubscription);

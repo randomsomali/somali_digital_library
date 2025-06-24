@@ -8,12 +8,14 @@ import {
   getCurrentInstitution,
   getCurrentAdmin,
   updateAdminProfile,
+  registerUser,
 } from "../controllers/authController.js";
 import { authenticate, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
 // Public routes
+router.post("/register/user", registerUser);
 router.post("/login/user", loginUser);
 router.post("/login/institution", loginInstitution);
 router.post("/login/admin", loginAdmin);

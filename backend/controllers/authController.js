@@ -6,7 +6,7 @@ import { generateTokens } from "../utils/jwt.js";
 
 export const loginUser = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, password, institution_id } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({
@@ -31,6 +31,19 @@ export const loginUser = async (req, res, next) => {
       });
     }
 
+    // If institution_id is provided, validate that the user belongs to that institution
+    if (institution_id) {
+      if (Number(user.institution_id) !== Number(institution_id)) {
+        return res.status(403).json({
+          success: false,
+          error: "User does not belong to the specified institution",
+        });
+      }
+
+      // Set role to student if institution is provided
+      user.role = "student";
+    }
+
     const tokens = generateTokens({
       id: user.user_id,
       type: "user",
@@ -49,6 +62,7 @@ export const loginUser = async (req, res, next) => {
         name: user.name,
         role: user.role,
         sub_status: user.sub_status,
+        institution_id: user.institution_id,
       },
     });
   } catch (error) {
@@ -89,6 +103,7 @@ export const loginInstitution = async (req, res, next) => {
     const tokens = generateTokens({
       id: institution.institution_id,
       type: "institution",
+      role: "institution",
     });
 
     await AuthService.saveRefreshToken(
@@ -107,6 +122,7 @@ export const loginInstitution = async (req, res, next) => {
         name: institution.name,
         email: institution.email,
         sub_status: institution.sub_status,
+        role: "institution",
       },
     });
   } catch (error) {
@@ -232,6 +248,7 @@ export const getCurrentInstitution = async (req, res, next) => {
         name: institution.name,
         email: institution.email,
         sub_status: institution.sub_status,
+        role: "institution",
       },
     });
   } catch (error) {
@@ -313,6 +330,110 @@ export const updateAdminProfile = async (req, res, next) => {
         email: updatedAdmin.email,
         fullname: updatedAdmin.fullname,
         role: updatedAdmin.role,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const registerUser = async (req, res, next) => {
+  try {
+    const { name, email, password } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: "Name, email, and password are required",
+      });
+    }
+
+    // Validate name length (max 255 characters as per database schema)
+    if (name.length > 255) {
+      return res.status(400).json({
+        success: false,
+        error: "Name cannot exceed 255 characters",
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: "Please provide a valid email address",
+      });
+    }
+
+    // Validate email length (max 100 characters as per database schema)
+    if (email.length > 100) {
+      return res.status(400).json({
+        success: false,
+        error: "Email cannot exceed 100 characters",
+      });
+    }
+
+    // Validate password strength (minimum 6 characters, max 100 as per database schema)
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        error: "Password must be at least 6 characters long",
+      });
+    }
+
+    if (password.length > 100) {
+      return res.status(400).json({
+        success: false,
+        error: "Password cannot exceed 100 characters",
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findByEmail(email, false);
+    if (existingUser) {
+      return res.status(409).json({
+        success: false,
+        error: "User with this email already exists",
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await AuthService.hashPassword(password);
+
+    // Create user with default values
+    const userId = await User.create({
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
+      password: hashedPassword,
+      role: "user", // Default role
+      sub_status: "none", // Default subscription status
+      institution_id: null, // No institution by default
+    });
+
+    // Get the created user
+    const user = await User.findById(userId, false);
+
+    // Generate tokens
+    const tokens = generateTokens({
+      id: user.user_id,
+      type: "user",
+      role: user.role,
+    });
+
+    // Save refresh token
+    await AuthService.saveRefreshToken(tokens.refreshToken, user.user_id);
+    AuthService.setCookies(res, tokens);
+
+    res.status(201).json({
+      success: true,
+      message: "User registered successfully",
+      user: {
+        id: user.user_id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        sub_status: user.sub_status,
       },
     });
   } catch (error) {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Search, Plus, Pencil, Trash2, ChevronLeft, ChevronRight, XCircle, Eye, EyeOff } from "lucide-react";
-import { fetchUsers, createUser, updateUser, deleteUser } from "@/services/api";
+import { fetchUsers, createUser, updateUser, deleteUser, fetchInstitutionsDropdown } from "@/services/api";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -43,23 +43,46 @@ import {
 import NotificationDialog from "@/components/ui/NotificationDialog";
 import { z } from "zod";
 
-// Zod schema for user validation
+// Update the Zod schema with stricter validation
 const userSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
-  role: z.enum(["user", "student"], { required_error: "Role is required" }),
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(255, "Name cannot exceed 255 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Name can only contain letters and spaces"),
+  
+  email: z.string()
+    .email("Invalid email format")
+    .max(100, "Email cannot exceed 100 characters"),
+  
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password cannot exceed 100 characters")
+    .optional()
+    .transform(val => val === "" ? undefined : val), // Convert empty string to undefined
+  
+  role: z.enum(["user", "student"], { 
+    required_error: "Role is required",
+    invalid_type_error: "Invalid role selected" 
+  }),
+  
   institution_id: z.number().nullable(),
-  sub_status: z.enum(["none", "active", "expired"]).default("none"),
+  
+  sub_status: z.enum(["none", "active", "expired"])
+    .default("none"),
 });
 
 const validateForm = (formData, isUpdate = false) => {
   try {
     const schema = isUpdate
-      ? userSchema.partial({ password: true })
+      ? userSchema.partial({ password: true }) // Make password optional for updates
       : userSchema;
     
-    schema.parse(formData);
+    // Remove password field if it's empty on update
+    const dataToValidate = isUpdate && !formData.password
+      ? { ...formData, password: undefined }
+      : formData;
+
+    schema.parse(dataToValidate);
     return {};
   } catch (error) {
     return error.errors.reduce((acc, curr) => {
@@ -69,24 +92,61 @@ const validateForm = (formData, isUpdate = false) => {
   }
 };
 
-const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
-  const [formData, setFormData] = useState(initialData || {
+// Export the UserForm component
+export const UserForm = ({ onSubmit, initialData = null, onCancel, disableFields = {} }) => {
+  const [institutions, setInstitutions] = useState([]);
+  const [formData, setFormData] = useState({
     name: "",
     email: "",
     password: "",
-    role: "",
+    role: "user",
     institution_id: null,
     sub_status: "none",
+    ...initialData // Move initialData here to prevent undefined values
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  useEffect(() => {
+    if (formData.role === "student") {
+      loadInstitutions();
+    }
+  }, [formData.role]);
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        ...initialData,
+        password: "",
+        institution_id: initialData.institution_id || null,
+      });
+      
+      if (initialData.role === "student") {
+        loadInstitutions();
+      }
+    }
+  }, [initialData]);
+
+  const loadInstitutions = async () => {
+    try {
+      const data = await fetchInstitutionsDropdown();
+      setInstitutions(data);
+    } catch (error) {
+      console.error("Failed to load institutions:", error);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    const validationErrors = validateForm(formData, !!initialData);
+    // Remove password if it's empty on update
+    const dataToValidate = initialData && !formData.password
+      ? { ...formData, password: undefined }
+      : formData;
+    
+    const validationErrors = validateForm(dataToValidate, !!initialData);
     if (Object.keys(validationErrors).length > 0) {
       setErrors(validationErrors);
       setIsSubmitting(false);
@@ -94,7 +154,12 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
     }
     
     try {
-      await onSubmit(formData);
+      // Only include password in the submission if it's not empty
+      const dataToSubmit = initialData && !formData.password
+        ? { ...formData, password: undefined }
+        : formData;
+
+      await onSubmit(dataToSubmit);
       setErrors({});
     } catch (error) {
       setErrors({ 
@@ -142,7 +207,7 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
 
         <div className="grid gap-2">
           <Label htmlFor="password">
-            {initialData ? "New Password (leave blank to keep current)" : "Password"}
+            Password {initialData && <span className="text-sm text-muted-foreground">(Leave empty to keep current)</span>}
           </Label>
           <div className="relative">
             <Input
@@ -150,31 +215,34 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
               type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              className={errors.password ? "border-red-500 pr-10" : "pr-10"}
-              placeholder={initialData ? "Leave blank to keep current password" : ""}
+              className={errors.password ? "border-red-500" : ""}
+              placeholder={initialData ? "Leave empty to keep current password" : "Enter password"}
             />
-            <button
+            <Button
               type="button"
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 -translate-y-1/2"
               onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 flex items-center pr-3"
             >
               {showPassword ? (
-                <EyeOff className="h-4 w-4 text-gray-400" />
+                <EyeOff className="h-4 w-4" />
               ) : (
-                <Eye className="h-4 w-4 text-gray-400" />
+                <Eye className="h-4 w-4" />
               )}
-            </button>
+            </Button>
           </div>
           {errors.password && <p className="text-sm text-red-500">{errors.password}</p>}
         </div>
 
-        <div className="grid gap-2">
+        <div className="space-y-2">
           <Label htmlFor="role">Role</Label>
           <Select
             value={formData.role}
             onValueChange={(value) => setFormData({ ...formData, role: value })}
+            disabled={disableFields.role}
           >
-            <SelectTrigger className={errors.role ? "border-red-500" : ""}>
+            <SelectTrigger>
               <SelectValue placeholder="Select role" />
             </SelectTrigger>
             <SelectContent>
@@ -182,8 +250,37 @@ const UserForm = ({ onSubmit, initialData = null, onCancel }) => {
               <SelectItem value="student">Student</SelectItem>
             </SelectContent>
           </Select>
-          {errors.role && <p className="text-sm text-red-500">{errors.role}</p>}
         </div>
+
+        {formData.role === "student" && (
+          <div className="space-y-2">
+            <Label htmlFor="institution">Institution</Label>
+            <Select
+              value={formData.institution_id?.toString()}
+              onValueChange={(value) => 
+                setFormData({ ...formData, institution_id: parseInt(value) })
+              }
+              disabled={disableFields.institution_id}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select institution" />
+              </SelectTrigger>
+              <SelectContent>
+                {institutions.map((inst) => (
+                  <SelectItem 
+                    key={inst.institution_id} 
+                    value={inst.institution_id.toString()}
+                  >
+                    {inst.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            {errors.institution_id && (
+              <p className="text-sm text-red-500">{errors.institution_id}</p>
+            )}
+          </div>
+        )}
 
         <div className="grid gap-2">
           <Label htmlFor="sub_status">Subscription Status</Label>
@@ -228,10 +325,12 @@ const Users = () => {
   const [successDialog, setSuccessDialog] = useState({ isOpen: false, message: "" });
   const [errorDialog, setErrorDialog] = useState({ isOpen: false, message: "" });
   const limit = 10;
+  const [selectedRole, setSelectedRole] = useState("all");
+  const [selectedSubStatus, setSelectedSubStatus] = useState("all");
 
   useEffect(() => {
     loadUsers();
-  }, [currentPage, search]);
+  }, [currentPage, search, selectedRole, selectedSubStatus]);
 
   const loadUsers = async () => {
     try {
@@ -240,6 +339,8 @@ const Users = () => {
         page: currentPage,
         limit,
         search: search || undefined,
+        role: selectedRole !== "all" ? selectedRole : undefined,
+        sub_status: selectedSubStatus !== "all" ? selectedSubStatus : undefined,
       };
       
       const result = await fetchUsers(params);
@@ -361,8 +462,8 @@ const Users = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <div className="relative">
+        <div className="mb-4 flex gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search users..."
@@ -374,6 +475,41 @@ const Users = () => {
               className="pl-8 bg-background border-input"
             />
           </div>
+
+          <Select
+            value={selectedRole}
+            onValueChange={(value) => {
+              setSelectedRole(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="user">User</SelectItem>
+              <SelectItem value="student">Student</SelectItem>
+            </SelectContent>
+          </Select>
+
+          <Select
+            value={selectedSubStatus}
+            onValueChange={(value) => {
+              setSelectedSubStatus(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by subscription" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="none">No Subscription</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="expired">Expired</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="rounded-md border overflow-hidden">
@@ -383,6 +519,7 @@ const Users = () => {
                 <TableHead className="font-bold">Name</TableHead>
                 <TableHead className="font-bold">Email</TableHead>
                 <TableHead className="font-bold">Role</TableHead>
+                <TableHead className="font-bold">Institution</TableHead>
                 <TableHead className="font-bold">Subscription</TableHead>
                 <TableHead className="font-bold">Created At</TableHead>
                 <TableHead className="font-bold">Actions</TableHead>
@@ -394,6 +531,9 @@ const Users = () => {
                   <TableCell>{user.name}</TableCell>
                   <TableCell>{user.email}</TableCell>
                   <TableCell className="capitalize">{user.role}</TableCell>
+                  <TableCell>
+                    {user.role === 'student' ? (user.institution_name || '-') : '-'}
+                  </TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded-full text-xs ${
                       user.sub_status === 'active' 

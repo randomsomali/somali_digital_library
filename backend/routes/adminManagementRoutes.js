@@ -7,6 +7,7 @@ import {
   deleteAdmin,
 } from "../controllers/adminManagementController.js";
 import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
+import { validateAdmin } from "../middleware/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -19,11 +20,11 @@ router.get("/", getAllAdmins);
 // Get single admin details
 router.get("/:id", getAdminDetails);
 
-// Create new admin
-router.post("/", createAdmin);
+// Create new admin with validation
+router.post("/", validateAdmin(false), createAdmin);
 
-// Update admin
-router.put("/:id", updateAdmin);
+// Update admin with validation
+router.put("/:id", validateAdmin(true), updateAdmin);
 
 // Delete admin
 router.delete("/:id", deleteAdmin);

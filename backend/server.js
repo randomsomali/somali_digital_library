@@ -4,7 +4,6 @@ import cors from "cors";
 import cookieParser from "cookie-parser";
 import http from "http";
 import helmet from "helmet";
-
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import arcjetMiddleware from "./middleware/arcjetMiddleware.js";
 import { PORT, NODE_ENV, FRONTEND_URLS } from "./config/env.js";
@@ -17,6 +16,8 @@ import adminUserRoutes from "./routes/adminUserRoutes.js";
 import adminAuthorRoutes from "./routes/adminAuthorRoutes.js";
 import adminSubscriptionRoutes from "./routes/adminSubscriptionRoutes.js";
 import adminManagementRoutes from "./routes/adminManagementRoutes.js";
+import adminInstitutionRoutes from "./routes/adminInstitutionRoutes.js";
+import adminUserSubscriptionRoutes from "./routes/adminUserSubscriptionRoutes.js";
 
 // Import routes
 
@@ -73,6 +74,8 @@ app.use("/api/v1/admin/users", adminUserRoutes);
 app.use("/api/v1/admin/authors", adminAuthorRoutes);
 app.use("/api/v1/admin/subscriptions", adminSubscriptionRoutes);
 app.use("/api/v1/admin/admins", adminManagementRoutes);
+app.use("/api/v1/admin/institutions", adminInstitutionRoutes);
+app.use("/api/v1/admin/user-subscriptions", adminUserSubscriptionRoutes);
 // Error handling
 app.use(errorMiddleware);
 

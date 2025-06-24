@@ -1,9 +1,7 @@
 import Resource from "../models/resourceModel.js";
-import {
-  cloudinary,
-  generateSignedUrl,
-  getPublicIdFromUrl,
-} from "../config/cloudinary.js";
+import Category from "../models/categoryModel.js";
+import Author from "../models/authorModel.js";
+import { cloudinaryUtils } from "../config/cloudinary.js";
 
 export const getAllResources = async (req, res, next) => {
   try {
@@ -51,12 +49,11 @@ export const getResourceDetails = async (req, res, next) => {
       });
     }
 
-    // Generate a signed URL for the file that expires in 1 hour
-    if (resource.file_url) {
-      const publicId = getPublicIdFromUrl(resource.file_url);
-      resource.download_url = await generateSignedUrl(publicId);
-      // Don't send the original file_url to clients
-      delete resource.file_url;
+    // Generate a signed URL that expires in 1 hour
+    if (resource.file_public_id) {
+      resource.download_url = await cloudinaryUtils.generateSignedUrl(
+        resource.file_public_id
+      );
     }
 
     res.json({
@@ -77,100 +74,150 @@ export const createResource = async (req, res, next) => {
       });
     }
 
-    // Upload file to Cloudinary with private access
-    const result = await cloudinary.uploader.upload(req.file.path, {
-      resource_type: "raw",
-      folder: "SBL/resources",
-      public_id: `${Date.now()}-${req.file.originalname}`,
-      access_mode: "authenticated",
-      type: "private",
+    // Validate category
+    const categoryExists = await Category.exists(req.body.category_id);
+    if (!categoryExists) {
+      await cloudinaryUtils.cleanupUpload(req.file);
+      return res.status(400).json({
+        success: false,
+        error: "Invalid category ID",
+      });
+    }
+
+    // Validate and parse author IDs
+    let authorIds = [];
+    try {
+      authorIds = JSON.parse(req.body.author_ids || "[]");
+      if (!Array.isArray(authorIds) || authorIds.length === 0) {
+        throw new Error("At least one author is required");
+      }
+      // Validate all authors exist
+      const validAuthors = await Author.validateAuthors(authorIds);
+      if (!validAuthors) {
+        throw new Error("One or more invalid author IDs");
+      }
+    } catch (error) {
+      await cloudinaryUtils.cleanupUpload(req.file);
+      return res.status(400).json({
+        success: false,
+        error: error.message || "Invalid author IDs format",
+      });
+    }
+
+    // Create resource with file info
+    const resource = await Resource.create({
+      ...req.body,
+      file_public_id: req.file.filename,
+      author_ids: authorIds,
     });
 
-    const resourceData = {
-      ...req.body,
-      file_url: result.secure_url,
-      file_public_id: `${result.public_id}`, // Store public_id for future reference
-      status: req.body.status || "unpublished",
-      paid: req.body.paid || "free",
-    };
-
-    const resourceId = await Resource.create(resourceData);
-    const resource = await Resource.findByIdForAdmin(resourceId);
-
-    // Generate initial signed URL for immediate use
-    const downloadUrl = await generateSignedUrl(result.public_id);
+    if (resource && resource["0"]) {
+      resource["0"].download_url = await cloudinaryUtils.generateSignedUrl(
+        resource["0"].file_public_id
+      );
+    }
 
     res.status(201).json({
       success: true,
-      data: {
-        ...resource,
-        download_url: downloadUrl,
-        file_url: undefined, // Don't send the original file_url
-      },
+      data: resource,
     });
   } catch (error) {
-    // Delete uploaded file if resource creation fails
-    if (req.file && req.file.public_id) {
-      await cloudinary.uploader.destroy(req.file.public_id, {
-        resource_type: "raw",
-      });
-    }
-    next(error);
+    await cloudinaryUtils.cleanupUpload(req.file);
+    res.status(400).json({
+      success: false,
+      error: error.message || "Failed to create resource",
+    });
   }
 };
 
 export const updateResource = async (req, res, next) => {
   try {
+    // First check if resource exists
     const existingResource = await Resource.findByIdForAdmin(req.params.id);
     if (!existingResource) {
+      if (req.file) {
+        await cloudinaryUtils.cleanupUpload(req.file);
+      }
       return res.status(404).json({
         success: false,
         error: "Resource not found",
       });
     }
 
-    let resourceData = { ...req.body };
-
-    // If new file is uploaded
-    if (req.file) {
-      // Delete old file from Cloudinary
-      if (existingResource.file_public_id) {
-        await cloudinary.uploader.destroy(existingResource.file_public_id, {
-          resource_type: "raw",
+    // Validate category if provided
+    if (req.body.category_id) {
+      const categoryExists = await Category.exists(req.body.category_id);
+      if (!categoryExists) {
+        if (req.file) {
+          await cloudinaryUtils.cleanupUpload(req.file);
+        }
+        return res.status(400).json({
+          success: false,
+          error: "Invalid category ID",
         });
       }
-
-      // Upload new file
-      const result = await cloudinary.uploader.upload(req.file.path, {
-        resource_type: "raw",
-        folder: "SBL/resources",
-        public_id: `${Date.now()}-${req.file.originalname}`,
-        access_mode: "authenticated",
-        type: "private",
-      });
-
-      resourceData.file_url = result.secure_url;
-      resourceData.file_public_id = `${result.public_id}`;
     }
 
-    const resource = await Resource.update(req.params.id, resourceData);
+    // Validate author IDs if provided
+    let authorIds = undefined;
+    if (req.body.author_ids) {
+      try {
+        authorIds = JSON.parse(req.body.author_ids);
+        if (!Array.isArray(authorIds)) {
+          throw new Error("Author IDs must be an array");
+        }
+        if (authorIds.length > 0) {
+          const validAuthors = await Author.validateAuthors(authorIds);
+          if (!validAuthors) {
+            throw new Error("One or more invalid author IDs");
+          }
+        }
+      } catch (error) {
+        if (req.file) {
+          await cloudinaryUtils.cleanupUpload(req.file);
+        }
+        return res.status(400).json({
+          success: false,
+          error: error.message || "Invalid author IDs format",
+        });
+      }
+    }
 
-    // Generate new signed URL if file exists
-    let downloadUrl;
-    if (resource.file_public_id) {
-      downloadUrl = await generateSignedUrl(resource.file_public_id);
+    // Handle file update
+    let file_public_id = existingResource.file_public_id;
+    if (req.file) {
+      // Delete old file before updating
+      await cloudinaryUtils.deleteFile(existingResource.file_public_id);
+      file_public_id = req.file.filename;
+    }
+
+    // Update resource
+    const updatedResource = await Resource.update(req.params.id, {
+      ...req.body,
+      file_public_id,
+      author_ids: authorIds,
+    });
+
+    // Generate download URL
+    if (updatedResource) {
+      updatedResource.download_url = await cloudinaryUtils.generateSignedUrl(
+        updatedResource.file_public_id
+      );
     }
 
     res.json({
       success: true,
-      data: {
-        ...resource,
-        download_url: downloadUrl,
-        file_url: undefined, // Don't send the original file_url
-      },
+      data: updatedResource,
     });
   } catch (error) {
-    next(error);
+    // Clean up uploaded file if update fails
+    if (req.file) {
+      await cloudinaryUtils.cleanupUpload(req.file);
+    }
+    res.status(400).json({
+      success: false,
+      error: error.message || "Failed to update resource",
+    });
   }
 };
 
@@ -185,12 +232,9 @@ export const deleteResource = async (req, res, next) => {
     }
 
     // Delete file from Cloudinary
-    if (resource.file_public_id) {
-      await cloudinary.uploader.destroy(resource.file_public_id, {
-        resource_type: "raw",
-      });
-    }
+    await cloudinaryUtils.deleteFile(resource.file_public_id);
 
+    // Delete resource (will cascade delete author associations)
     await Resource.delete(req.params.id);
 
     res.json({

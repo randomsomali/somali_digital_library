@@ -5,8 +5,10 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  getInstitutionStudents,
 } from "../controllers/adminUserController.js";
 import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
+import { validateUser } from "../middleware/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -19,13 +21,16 @@ router.get("/", getAllUsers);
 // Get single user details
 router.get("/:id", getUserDetails);
 
-// Create new user
-router.post("/", createUser);
+// Create new user with validation
+router.post("/", validateUser(false), createUser);
 
-// Update user
-router.put("/:id", updateUser);
+// Update user with validation
+router.put("/:id", validateUser(true), updateUser);
 
 // Delete user
 router.delete("/:id", deleteUser);
+
+// Add this route
+router.get("/institution/:institutionId/students", getInstitutionStudents);
 
 export default router;

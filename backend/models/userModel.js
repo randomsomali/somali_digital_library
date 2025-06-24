@@ -34,9 +34,14 @@ class User {
         u.role,
         u.sub_status,
         u.created_at,
-        i.name as institution_name
+        u.institution_id,
+        i.name as institution_name,
+        GROUP_CONCAT(DISTINCT s.name) as subscription_names,
+        GROUP_CONCAT(DISTINCT us.expiry_date) as expiry_dates
       FROM users u
       LEFT JOIN institutions i ON u.institution_id = i.institution_id
+      LEFT JOIN user_subscriptions us ON u.user_id = us.user_id AND us.status = 'active'
+      LEFT JOIN subscriptions s ON us.subscription_id = s.subscription_id
       WHERE 1=1
     `;
 
@@ -58,10 +63,15 @@ class User {
       params.push(filters.sub_status);
     }
 
-    // Get total count before pagination
-    const countSql = `SELECT COUNT(*) as total FROM users u WHERE 1=1 ${
-      sql.split("WHERE 1=1")[1] || ""
-    }`;
+    // Add GROUP BY to prevent duplicates
+    sql += ` GROUP BY u.user_id`;
+
+    // Get total count
+    const countSql = `
+      SELECT COUNT(DISTINCT u.user_id) as total 
+      FROM users u 
+      WHERE 1=1 ${sql.split("WHERE 1=1")[1].split("GROUP BY")[0] || ""}
+    `;
 
     const [countResult] = await db.query(countSql, params);
     const total = parseInt(countResult.total);
@@ -73,8 +83,18 @@ class User {
 
     const users = await db.query(sql, params);
 
+    // Process the results to format subscription data
+    const processedUsers = users.map(user => ({
+      ...user,
+      subscription_name: user.subscription_names ? user.subscription_names.split(',')[0] : null,
+      expiry_date: user.expiry_dates ? user.expiry_dates.split(',')[0] : null,
+      // Remove the concatenated fields
+      subscription_names: undefined,
+      expiry_dates: undefined
+    }));
+
     return {
-      users,
+      users: processedUsers,
       total,
       totalPages,
       page,
@@ -91,7 +111,7 @@ class User {
         u.role,
         u.sub_status,
         u.created_at,
-        i.institution_id,
+        u.institution_id,
         i.name as institution_name
       FROM users u
       LEFT JOIN institutions i ON u.institution_id = i.institution_id
@@ -103,6 +123,21 @@ class User {
   }
 
   static async create(data) {
+    // Validate name length in database
+    if (data.name.length > 255) {
+      throw new Error("Name cannot exceed 255 characters");
+    }
+
+    // Validate email length
+    if (data.email.length > 100) {
+      throw new Error("Email cannot exceed 100 characters");
+    }
+
+    // Validate password length if provided
+    if (data.password && data.password.length > 100) {
+      throw new Error("Password cannot exceed 100 characters");
+    }
+
     const sql = `
       INSERT INTO users (
         name, email, password, role,
@@ -123,6 +158,21 @@ class User {
   }
 
   static async update(id, data) {
+    // Validate name length if provided
+    if (data.name && data.name.length > 255) {
+      throw new Error("Name cannot exceed 255 characters");
+    }
+
+    // Validate email length if provided
+    if (data.email && data.email.length > 100) {
+      throw new Error("Email cannot exceed 100 characters");
+    }
+
+    // Validate password length if provided
+    if (data.password && data.password.length > 100) {
+      throw new Error("Password cannot exceed 100 characters");
+    }
+
     const updateFields = [];
     const params = [];
 
@@ -173,6 +223,72 @@ class User {
   static async delete(id) {
     const sql = `DELETE FROM users WHERE user_id = ?`;
     await db.query(sql, [id]);
+  }
+
+  static async findAllStudentsByInstitution(institutionId, filters = {}) {
+    const page = Math.max(1, parseInt(filters.page) || 1);
+    const limit = Math.min(50, Math.max(5, parseInt(filters.limit) || 15));
+
+    let sql = `
+      SELECT 
+        u.user_id,
+        u.name,
+        u.email,
+        u.role,
+        u.sub_status,
+        u.created_at,
+        i.name as institution_name,
+        GROUP_CONCAT(DISTINCT s.name) as subscription_names,
+        GROUP_CONCAT(DISTINCT us.expiry_date) as expiry_dates
+      FROM users u
+      LEFT JOIN institutions i ON u.institution_id = i.institution_id
+      LEFT JOIN user_subscriptions us ON u.user_id = us.user_id AND us.status = 'active'
+      LEFT JOIN subscriptions s ON us.subscription_id = s.subscription_id
+      WHERE u.institution_id = ? AND u.role = 'student'
+    `;
+
+    const params = [institutionId];
+
+    if (filters.search) {
+      sql += ` AND (u.name LIKE ? OR u.email LIKE ?)`;
+      params.push(`%${filters.search}%`, `%${filters.search}%`);
+    }
+
+    if (filters.sub_status && filters.sub_status !== "all") {
+      sql += ` AND u.sub_status = ?`;
+      params.push(filters.sub_status);
+    }
+
+    // Get total count before pagination
+    const countSql = `SELECT COUNT(*) as total FROM (${sql}) as subquery`;
+    const [countResult] = await db.query(countSql, params);
+    const total = countResult.total;
+    const totalPages = Math.ceil(total / limit);
+
+    // Add GROUP BY before ORDER BY
+    sql += ` GROUP BY u.user_id ORDER BY u.created_at DESC LIMIT ? OFFSET ?`;
+
+    const offset = (page - 1) * limit;
+    params.push(limit, offset);
+
+    const users = await db.query(sql, params);
+
+    // Process the results
+    const processedUsers = users.map(user => ({
+      ...user,
+      subscription_name: user.subscription_names ? user.subscription_names.split(',')[0] : null,
+      expiry_date: user.expiry_dates ? user.expiry_dates.split(',')[0] : null,
+      subscription_names: undefined,
+      expiry_dates: undefined
+    }));
+
+    return {
+      users: processedUsers,
+      total,
+      totalPages,
+      page,
+      limit,
+    };
   }
 }
 

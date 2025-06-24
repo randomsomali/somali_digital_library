@@ -324,4 +324,471 @@ export const deleteAdmin = async (id) => {
   }
 };
 
+// Subscription Management API Methods
+export const fetchSubscriptions = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/subscriptions", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch subscriptions");
+    }
+    return {
+      subscriptions: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchSubscriptionById = async (id) => {
+  try {
+    const response = await api.get(`/admin/subscriptions/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch subscription");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createSubscription = async (data) => {
+  try {
+    const response = await api.post("/admin/subscriptions", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create subscription");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateSubscription = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/subscriptions/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update subscription");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteSubscription = async (id) => {
+  try {
+    const response = await api.delete(`/admin/subscriptions/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete subscription");
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Author Management API Methods
+export const fetchAuthors = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/authors", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch authors");
+    }
+    return {
+      authors: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createAuthor = async (data) => {
+  try {
+    const response = await api.post("/admin/authors", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create author");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateAuthor = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/authors/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update author");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteAuthor = async (id) => {
+  try {
+    const response = await api.delete(`/admin/authors/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete author");
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Institution Management API Methods
+export const fetchInstitutions = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/institutions", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch institutions");
+    }
+    return {
+      institutions: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createInstitution = async (data) => {
+  try {
+    const response = await api.post("/admin/institutions", data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create institution");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateInstitution = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/institutions/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update institution");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteInstitution = async (id) => {
+  try {
+    const response = await api.delete(`/admin/institutions/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete institution");
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchInstitutionStudents = async (institutionId, params = {}) => {
+  try {
+    const response = await api.get(
+      `/admin/users/institution/${institutionId}/students`,
+      { params }
+    );
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to fetch institution students"
+      );
+    }
+    return {
+      users: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Add this method to fetch institutions for dropdown
+export const fetchInstitutionsDropdown = async () => {
+  try {
+    const response = await api.get("/admin/institutions", {
+      params: {
+        limit: 100,
+        minimal: true, // Add this flag in backend to return only id and name
+      },
+    });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch institutions");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// Resource Management API Methods
+export const fetchResources = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/resources", { params });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch resources");
+    }
+    return {
+      resources: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getResourceDetails = async (id) => {
+  try {
+    const response = await api.get(`/admin/resources/${id}`);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to fetch resource details"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createResource = async (formData) => {
+  try {
+    const response = await api.post("/admin/resources", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to create resource");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateResource = async (id, formData) => {
+  try {
+    const response = await api.put(`/admin/resources/${id}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to update resource");
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteResource = async (id) => {
+  try {
+    const response = await api.delete(`/admin/resources/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to delete resource");
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateResourceStatus = async (id, status) => {
+  try {
+    const response = await api.patch(`/admin/resources/${id}/status`, {
+      status,
+    });
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to update resource status"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const updateResourcePaidStatus = async (id, paid) => {
+  try {
+    const response = await api.patch(`/admin/resources/${id}/paid`, { paid });
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to update resource paid status"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+// User Subscription Management API Methods
+export const fetchUserSubscriptions = async (params = {}) => {
+  try {
+    const response = await api.get("/admin/user-subscriptions", { params });
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to fetch user subscriptions"
+      );
+    }
+    return {
+      userSubscriptions: response.data.data,
+      total: response.data.total,
+      totalPages: response.data.totalPages,
+      page: response.data.page,
+      limit: response.data.limit,
+    };
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const fetchUserSubscriptionById = async (id) => {
+  try {
+    const response = await api.get(`/admin/user-subscriptions/${id}`);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to fetch user subscription"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const createUserSubscription = async (data) => {
+  try {
+    const response = await api.post("/admin/user-subscriptions", data);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to create user subscription"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const updateUserSubscription = async (id, data) => {
+  try {
+    const response = await api.put(`/admin/user-subscriptions/${id}`, data);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to update user subscription"
+      );
+    }
+    return response.data.data;
+  } catch (error) {
+    if (error.response?.data?.errors) {
+      error.validationErrors = error.response.data.errors;
+    }
+    throw error;
+  }
+};
+
+export const deleteUserSubscription = async (id) => {
+  try {
+    const response = await api.delete(`/admin/user-subscriptions/${id}`);
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to delete user subscription"
+      );
+    }
+    return response.data.message;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getUserSubscriptionDropdownData = async () => {
+  try {
+    const response = await api.get("/admin/user-subscriptions/dropdown-data");
+    if (!response.data.success) {
+      throw new Error(response.data.error || "Failed to fetch dropdown data");
+    }
+    return response.data.data;
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const checkActiveSubscription = async (
+  userId = null,
+  institutionId = null
+) => {
+  try {
+    const params = {};
+    if (userId) params.user_id = userId;
+    if (institutionId) params.institution_id = institutionId;
+
+    const response = await api.get("/admin/user-subscriptions/check-active", {
+      params,
+    });
+    if (!response.data.success) {
+      throw new Error(
+        response.data.error || "Failed to check active subscription"
+      );
+    }
+    return response.data.data.hasActiveSubscription;
+  } catch (error) {
+    throw error;
+  }
+};
+
 export default api;

@@ -19,21 +19,25 @@ export default async function ResourcePage({ params }: ResourcePageProps) {
   try {
     const resource = await getResourceById(id);
     return (
-      <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8 mt-12">
-        <div className="max-w-4xl mx-auto">
-          <ResourceDetails
-            resource={resource}
-            dictionary={dictionary}
-            lang={lang}
-          />
+      <main className="min-h-screen bg-background pt-32 pb-20">
+        <div className="container px-4">
+          <div className="max-w-4xl mx-auto">
+            <ResourceDetails
+              resource={resource}
+              dictionary={dictionary}
+              lang={lang}
+            />
+          </div>
         </div>
       </main>
     );
   } catch (error) {
     return (
-      <main className="min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto">
-          <ResourceNotFound dictionary={dictionary} lang={lang} />
+      <main className="min-h-screen bg-background pt-32 pb-20">
+        <div className="container px-4">
+          <div className="max-w-4xl mx-auto">
+            <ResourceNotFound dictionary={dictionary} lang={lang} />
+          </div>
         </div>
       </main>
     );

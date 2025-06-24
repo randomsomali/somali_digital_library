@@ -21,8 +21,7 @@ CREATE TABLE resources (
     language ENUM('English', 'Arabic', 'Somali'),
     paid ENUM('free', 'premium'),
     status ENUM('published', 'unpublished') DEFAULT 'unpublished',
-    file_url VARCHAR(255) NOT NULL,
-    file_public_id VARCHAR(255) AFTER file_url;
+    file_public_id VARCHAR(500) NOT NULL,
     category_id INT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -73,6 +72,7 @@ CREATE TABLE subscriptions (
     type ENUM('user', 'institution'), 
     price DECIMAL(10,2) NOT NULL, -- $5 for Users, $40 for Institutions
     duration_days INT NOT NULL, -- 30 Days, 365 Days
+    features JSON,                 -- Store features in JSON format
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -122,3 +122,4 @@ CREATE TABLE downloads (
 );
 
 
+?? "N/A" (Nullish Coalescing)

@@ -11,6 +11,7 @@ export const authenticate = async (req, res, next) => {
     const refreshToken = req.cookies.refreshToken;
 
     if (!accessToken && !refreshToken) {
+      AuthService.clearCookies(res);
       return res.status(401).json({
         success: false,
         error: "Authentication required",
@@ -23,11 +24,11 @@ export const authenticate = async (req, res, next) => {
       req.user = decoded;
       return next();
     }
-
     // Access token expired, try refresh token
     if (refreshToken) {
       const storedToken = await AuthService.validateRefreshToken(refreshToken);
       if (!storedToken) {
+        AuthService.clearCookies(res);
         return res.status(401).json({
           success: false,
           error: "Invalid refresh token",

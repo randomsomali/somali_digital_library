@@ -9,8 +9,15 @@ import StaffDashboard from './pages/staff/Dashboard';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Users from './pages/admin/Users';
 import Admins from './pages/admin/Admins';
-
+import Subscriptions from './pages/admin/Subscriptions';
+import UserSubscriptions from './pages/admin/UserSubscriptions';
+import Authors from './pages/admin/Authors';
+import Institutions from './pages/admin/Institutions';
+import InstitutionDetails from './pages/admin/InstitutionDetails';
+import Resources from './pages/admin/Resources';
 import NotFound from './components/NotFound';
+import AddResource from './pages/admin/AddResource';
+import ResourceDetails from './pages/admin/ResourceDetails';
 
 const router = createBrowserRouter([
   {
@@ -26,6 +33,14 @@ const router = createBrowserRouter([
       { path: 'categories', element: <Categories /> },
       { path: 'users', element: <Users /> },
       { path: 'admins', element: <Admins /> },
+      { path: 'subscriptions', element: <Subscriptions /> },
+      { path: 'user-subscriptions', element: <UserSubscriptions /> },
+      { path: 'authors', element: <Authors /> },
+      { path: 'institutions', element: <Institutions /> },
+      { path: 'institutions/:id/details', element: <InstitutionDetails /> },
+      { path: 'resources', element: <Resources /> },
+      { path: 'resources/add', element: <AddResource /> },
+      { path: 'resources/:id', element: <ResourceDetails /> },
     ],
   },
   {

@@ -1,17 +1,22 @@
 // Define the structure of the user (client) object
-export interface Client {
-    id: number; // or whatever type your user ID is
-    username: string;
-    phone: string;
-    // Add any other user properties you need
+export interface User {
+    id: string;
+    email: string;
+    name: string;
+    type: "user" | "student" | "institution";
+    role: string;
+    sub_status: string;
+    institution_id?: string | null;
+    username?: string; // Keep for backward compatibility
+    phone?: string; // Keep for backward compatibility
 }
 
 // Define the structure of the authentication context
 export interface AuthContextType {
-    client: Client | null; // The current authenticated user or null if not authenticated
-    login: (username: string, password: string) => Promise<void>; // Login function
+    user: User | null; // The current authenticated user or null if not authenticated
+    login: (email: string, password: string, userType?: "user" | "student" | "institution", institutionId?: string) => Promise<void>; // Login function
     logout: () => Promise<void>; // Logout function
-    // register: (clientData: { username: string; password: string; phone: string; }) => Promise<void>; // Registration function
+    register: (userData: { name: string; email: string; password: string; }) => Promise<void>; // Registration function
     loading: boolean; // Loading state
     isAuthenticated: boolean; // Whether the user is authenticated
 }

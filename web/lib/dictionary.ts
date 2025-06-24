@@ -1,9 +1,21 @@
-import type { Locale } from '../config/i18n-config'
+// lib/dictionary.ts
+import { cache } from 'react'
+import type { AppDictionary } from '../types/dictionary'
 
-// Add more languages as needed
-const dictionaries = {
-    en: () => import('../app/dictionaries/en.json').then(module => module.default),
-    ar: () => import('../app/dictionaries/ar.json').then(module => module.default)
-}
+// Define supported locales
+export type Locale = 'en' | 'ar'
 
-export const getDictionary = async (locale: Locale) => dictionaries[locale]()
+// Cache dictionary to prevent redundant loads
+export const getDictionary = cache(async (locale: string): Promise<AppDictionary> => {
+    // Validate locale to ensure it's supported
+    const validLocale = ['en', 'ar'].includes(locale) ? locale as Locale : 'en'
+
+    try {
+        // Dynamic import for better code splitting
+        return (await import(`../app/dictionaries/${validLocale}.json`)).default as AppDictionary
+    } catch (error) {
+        console.error(`Failed to load dictionary for locale: ${validLocale}`, error)
+        // Fallback to English if translation file is missing
+        return (await import(`../app/dictionaries/en.json`)).default as AppDictionary
+    }
+})

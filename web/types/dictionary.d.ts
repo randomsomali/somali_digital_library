@@ -1,28 +1,10 @@
 // types/dictionary.d.ts
-export interface ResourceType {
-    id: number;
-    title: string;
-    authors: string;
-    abstract: string;
-    publication_date: string;
-    category_id: number;
-    category_name: string;
-    type: string;
-    file_url: string;
-    downloads: number;
-    citations: number;
-    keywords: string[];
-    doi?: string;
-    language: string;
-    publisher: string;
-    pages?: number;
-    year_of_publication: number;
-}
+
 export interface AppDictionary {
     navigation: {
         home: string;
         resources: string;
-        menuTitle: string; // Add this line
+        menuTitle: string;
         categories: {
             educational: string;
             scientific: string;
@@ -36,12 +18,18 @@ export interface AppDictionary {
         };
         about: string;
         contact: string;
+        blog: string;
+        create: string;
+        joinCommunity: string;
     };
     auth: {
         login: string;
         signup: string;
+        register: string;
         profile: string;
         username: string;
+        email: string;
+        name: string;
         password: string;
         phone: string;
         logout: string;
@@ -50,6 +38,50 @@ export interface AppDictionary {
         invalidCredentials: string;
         userNotFound: string;
         usernameExists: string;
+        emailExists: string;
+        welcomeBack: string;
+        createAccount: string;
+        loginWithEmail: string;
+        loginWithApple: string;
+        loginWithGoogle: string;
+        orContinueWith: string;
+        forgotPassword: string;
+        dontHaveAccount: string;
+        alreadyHaveAccount: string;
+        termsOfService: string;
+        privacyPolicy: string;
+        byContinuing: string;
+        agreeTo: string;
+        and: string;
+        tabs: {
+            user: string;
+            student: string;
+            institution: string;
+        };
+        institution: {
+            select: string;
+            placeholder: string;
+            required: string;
+        };
+        form: {
+            name: string;
+            email: string;
+            password: string;
+            confirmPassword: string;
+            institution: string;
+            submit: string;
+            loading: string;
+        };
+        errors: {
+            required: string;
+            invalidEmail: string;
+            passwordTooShort: string;
+            passwordTooLong: string;
+            nameTooLong: string;
+            emailTooLong: string;
+            passwordsDontMatch: string;
+            selectInstitution: string;
+        };
     };
 
     common: {
@@ -57,15 +89,40 @@ export interface AppDictionary {
         search: string;
         language: string;
         theme: string;
+        joinCommunity: string;
+        create: string;
     };
     home: {
         hero: {
+            announcement: string;
             title: string;
+            subtitle: string;
             description: string;
+            searchPlaceholder: string;
             explore: string;
             learnMore: string;
+            joinCommunity: string;
+            features: {
+                design: {
+                    title: string;
+                    description: string;
+                    action: string;
+                };
+                github: {
+                    title: string;
+                    description: string;
+                    action: string;
+                };
+                community: {
+                    title: string;
+                    description: string;
+                    action: string;
+                };
+            };
         };
         stats: {
+            title: string;
+            description: string;
             books: string;
             journals: string;
             articles: string;
@@ -74,6 +131,81 @@ export interface AppDictionary {
         categories: {
             title: string;
             description: string;
+        };
+    };
+    about: {
+        hero: {
+            badge: string;
+            title: string;
+            subtitle: string;
+            description: string;
+            exploreLibrary: string;
+            joinUs: string;
+        };
+        stats: {
+            title: string;
+            description: string;
+            books: string;
+            booksDesc: string;
+            users: string;
+            usersDesc: string;
+            institutions: string;
+            institutionsDesc: string;
+            years: string;
+            yearsDesc: string;
+        };
+        mission: {
+            badge: string;
+            title: string;
+            description: string;
+            goals: string[];
+        };
+        vision: {
+            title: string;
+            description: string;
+            pillars: string[];
+        };
+        values: {
+            title: string;
+            description: string;
+            preservation: {
+                title: string;
+                description: string;
+            };
+            community: {
+                title: string;
+                description: string;
+            };
+            innovation: {
+                title: string;
+                description: string;
+            };
+            accessibility: {
+                title: string;
+                description: string;
+            };
+        };
+        features: {
+            title: string;
+            description: string;
+            digitalLibrary: {
+                title: string;
+                description: string;
+            };
+            educational: {
+                title: string;
+                description: string;
+            };
+            global: {
+                title: string;
+                description: string;
+            };
+        };
+        cta: {
+            title: string;
+            description: string;
+            joinNow: string;
+            exploreLibrary: string;
         };
     };
     categories: {
@@ -132,9 +264,6 @@ export interface AppDictionary {
         };
         copyright: string;
     };
-    auth: {
-        login: string;
-    };
     resources: {
         title: string;
         description: string;
@@ -192,5 +321,30 @@ export interface AppDictionary {
             title: string;
             description: string;
         };
+    };
+    dashboard: {
+        welcome: string;
+        manageAccount: string;
+        accountInfo: string;
+        myResources: string;
+        profileSettings: string;
+        accessResources: string;
+        updateProfile: string;
+        viewResources: string;
+        editProfile: string;
+        comingSoon: string;
+        personalizedDashboard: string;
+        institutionDashboard: string;
+        institutionPortal: string;
+        totalStudents: string;
+        activeSubscriptions: string;
+        resourcesAccessed: string;
+        engagementRate: string;
+        institutionInfo: string;
+        quickActions: string;
+        manageStudents: string;
+        viewReports: string;
+        updateInstitutionInfo: string;
+        institutionFeatures: string;
     };
 }

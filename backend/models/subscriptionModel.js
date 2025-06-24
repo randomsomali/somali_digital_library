@@ -12,12 +12,12 @@ class Subscription {
         s.type,
         s.price,
         s.duration_days,
+        s.features,
         s.created_at,
-        COUNT(DISTINCT CASE WHEN u.sub_status = 'active' THEN u.user_id END) as active_users,
-        COUNT(DISTINCT CASE WHEN i.sub_status = 'active' THEN i.institution_id END) as active_institutions
+        COUNT(DISTINCT CASE WHEN us.status = 'active' AND us.user_id IS NOT NULL THEN us.user_id END) as active_users,
+        COUNT(DISTINCT CASE WHEN us.status = 'active' AND us.institution_id IS NOT NULL THEN us.institution_id END) as active_institutions
       FROM subscriptions s
-      LEFT JOIN users u ON s.type = 'user' AND u.sub_status = 'active'
-      LEFT JOIN institutions i ON s.type = 'institution' AND i.sub_status = 'active'
+      LEFT JOIN user_subscriptions us ON s.subscription_id = us.subscription_id
     `;
 
     const params = [];
@@ -47,8 +47,19 @@ class Subscription {
 
     const subscriptions = await db.query(sql, params);
 
+    // Process features for each subscription
     return {
-      subscriptions,
+      subscriptions: subscriptions.map((sub) => ({
+        ...sub,
+        features: (() => {
+          try {
+            return sub.features ? JSON.parse(sub.features) : [];
+          } catch (error) {
+            console.error("Error parsing features:", error);
+            return [];
+          }
+        })(),
+      })),
       total,
       totalPages,
       page,
@@ -64,25 +75,52 @@ class Subscription {
         s.type,
         s.price,
         s.duration_days,
+        s.features,
         s.created_at,
-        COUNT(DISTINCT CASE WHEN u.sub_status = 'active' THEN u.user_id END) as active_users,
-        COUNT(DISTINCT CASE WHEN i.sub_status = 'active' THEN i.institution_id END) as active_institutions
+        COUNT(DISTINCT CASE WHEN us.status = 'active' AND us.user_id IS NOT NULL THEN us.user_id END) as active_users,
+        COUNT(DISTINCT CASE WHEN us.status = 'active' AND us.institution_id IS NOT NULL THEN us.institution_id END) as active_institutions
       FROM subscriptions s
-      LEFT JOIN users u ON s.type = 'user' AND u.sub_status = 'active'
-      LEFT JOIN institutions i ON s.type = 'institution' AND i.sub_status = 'active'
+      LEFT JOIN user_subscriptions us ON s.subscription_id = us.subscription_id
       WHERE s.subscription_id = ?
       GROUP BY s.subscription_id
     `;
 
     const [subscription] = await db.query(sql, [id]);
-    return subscription || null;
+    if (!subscription) return null;
+
+    // Ensure features is always an array
+    try {
+      subscription.features = subscription.features
+        ? JSON.parse(subscription.features)
+        : [];
+    } catch (error) {
+      console.error("Error parsing features:", error);
+      subscription.features = [];
+    }
+
+    return subscription;
   }
 
   static async create(data) {
+    // Validate name length
+    if (data.name.length > 100) {
+      throw new Error("Name cannot exceed 100 characters");
+    }
+
+    // Validate price
+    if (data.price < 0 || data.price > 999999.99) {
+      throw new Error("Price must be between 0 and 999,999.99");
+    }
+
+    // Validate duration
+    if (data.duration_days < 1 || data.duration_days > 3650) {
+      throw new Error("Duration must be between 1 and 3650 days");
+    }
+
     const sql = `
       INSERT INTO subscriptions (
-        name, type, price, duration_days
-      ) VALUES (?, ?, ?, ?)
+        name, type, price, duration_days, features
+      ) VALUES (?, ?, ?, ?, ?)
     `;
 
     const result = await db.query(sql, [
@@ -90,9 +128,10 @@ class Subscription {
       data.type,
       data.price,
       data.duration_days,
+      JSON.stringify(data.features),
     ]);
 
-    return result.insertId;
+    return this.findByIdForAdmin(result.insertId);
   }
 
   static async update(id, data) {
@@ -117,6 +156,11 @@ class Subscription {
     if (data.duration_days !== undefined) {
       updateFields.push("duration_days = ?");
       params.push(data.duration_days);
+    }
+
+    if (data.features !== undefined) {
+      updateFields.push("features = ?");
+      params.push(JSON.stringify(data.features));
     }
 
     if (updateFields.length === 0) return this.findByIdForAdmin(id);

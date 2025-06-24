@@ -45,10 +45,25 @@ import { z } from "zod";
 
 // Zod schema for admin validation
 const adminSchema = z.object({
-  fullname: z.string().min(1, "Full name is required"),
-  email: z.string().email("Invalid email format"),
-  password: z.string().min(6, "Password must be at least 6 characters").optional(),
-  role: z.enum(["admin", "staff"], { required_error: "Role is required" }),
+  fullname: z.string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(50, "Full name cannot exceed 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Full name can only contain letters and spaces"),
+  
+  email: z.string()
+    .email("Invalid email format")
+    .max(100, "Email cannot exceed 100 characters"),
+  
+  password: z.string()
+    .min(6, "Password must be at least 6 characters")
+    .max(100, "Password cannot exceed 100 characters")
+    .optional()
+    .transform(val => val === "" ? undefined : val),
+  
+  role: z.enum(["admin", "staff"], {
+    required_error: "Role is required",
+    invalid_type_error: "Invalid role selected"
+  }),
 });
 
 const validateForm = (formData, isUpdate = false) => {
@@ -57,7 +72,12 @@ const validateForm = (formData, isUpdate = false) => {
       ? adminSchema.partial({ password: true })
       : adminSchema;
     
-    schema.parse(formData);
+    // Remove password if it's empty on update
+    const dataToValidate = isUpdate && !formData.password
+      ? { ...formData, password: undefined }
+      : formData;
+
+    schema.parse(dataToValidate);
     return {};
   } catch (error) {
     return error.errors.reduce((acc, curr) => {
@@ -68,11 +88,12 @@ const validateForm = (formData, isUpdate = false) => {
 };
 
 const AdminForm = ({ onSubmit, initialData = null, onCancel }) => {
-  const [formData, setFormData] = useState(initialData || {
+  const [formData, setFormData] = useState({
     fullname: "",
     email: "",
     password: "",
     role: "",
+    ...initialData // Move initialData here to prevent undefined values
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -207,10 +228,11 @@ const Admins = () => {
   const [successDialog, setSuccessDialog] = useState({ isOpen: false, message: "" });
   const [errorDialog, setErrorDialog] = useState({ isOpen: false, message: "" });
   const limit = 10;
+  const [selectedRole, setSelectedRole] = useState("all");
 
   useEffect(() => {
     loadAdmins();
-  }, [currentPage, search]);
+  }, [currentPage, search, selectedRole]);
 
   const loadAdmins = async () => {
     try {
@@ -219,6 +241,7 @@ const Admins = () => {
         page: currentPage,
         limit,
         search: search || undefined,
+        role: selectedRole !== "all" ? selectedRole : undefined,
       };
       
       const result = await fetchAdmins(params);
@@ -340,8 +363,8 @@ const Admins = () => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="mb-4">
-          <div className="relative">
+        <div className="mb-4 flex gap-4">
+          <div className="relative flex-1">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search admins..."
@@ -353,6 +376,23 @@ const Admins = () => {
               className="pl-8 bg-background border-input"
             />
           </div>
+
+          <Select
+            value={selectedRole}
+            onValueChange={(value) => {
+              setSelectedRole(value);
+              setCurrentPage(1);
+            }}
+          >
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by role" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Roles</SelectItem>
+              <SelectItem value="admin">Admin</SelectItem>
+              <SelectItem value="staff">Staff</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
 
         <div className="rounded-md border overflow-hidden">

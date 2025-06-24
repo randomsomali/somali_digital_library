@@ -91,6 +91,21 @@ class Admin {
   }
 
   static async create(data) {
+    // Validate fullname length in database
+    if (data.fullname.length > 50) {
+      throw new Error("Full name cannot exceed 50 characters");
+    }
+
+    // Validate email length
+    if (data.email.length > 100) {
+      throw new Error("Email cannot exceed 100 characters");
+    }
+
+    // Validate password length if provided
+    if (data.password && data.password.length > 100) {
+      throw new Error("Password cannot exceed 100 characters");
+    }
+
     const sql = `
       INSERT INTO admins (
         fullname, email, password, role
@@ -108,6 +123,21 @@ class Admin {
   }
 
   static async update(id, data) {
+    // Validate fullname length if provided
+    if (data.fullname && data.fullname.length > 50) {
+      throw new Error("Full name cannot exceed 50 characters");
+    }
+
+    // Validate email length if provided
+    if (data.email && data.email.length > 100) {
+      throw new Error("Email cannot exceed 100 characters");
+    }
+
+    // Validate password length if provided
+    if (data.password && data.password.length > 100) {
+      throw new Error("Password cannot exceed 100 characters");
+    }
+
     const updateFields = [];
     const params = [];
 

@@ -3,81 +3,110 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
-  login as apiLogin,
+  loginUser,
+  loginStudent,
+  loginInstitution,
   logout as apiLogout,
   getCurrentUser,
-  registerClient,
+  getCurrentInstitution,
+  registerUser,
   ApiError,
 } from "@/lib/api";
-import { Client, AuthContextType } from "@/lib/auth";
-import Loader from "@/components/Loader";
+import { User, AuthContextType } from "@/lib/auth";
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 // All routes that require authentication
-const PROTECTED_ROUTES = ["/resources/[id]"]; // Add your protected routes here
-const AUTH_ROUTES = ["/login", "/signup"];
+const PROTECTED_ROUTES = ["/dashboard", "/institution-dashboard", "/pricing"];
+// Auth routes that should redirect logged-in users
+const AUTH_ROUTES = ["/login", "/register"];
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [client, setClient] = useState<Client | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [initialized, setInitialized] = useState(false);
   const router = useRouter();
-  const pathname = usePathname();
 
-  // Check if current path requires authentication
-  const isProtectedRoute = (path: string) => {
-    return PROTECTED_ROUTES.some((route) => path.startsWith(route));
-  };
-
-  // Check if current path is auth-related (login/signup)
-  const isAuthRoute = (path: string) => {
-    return AUTH_ROUTES.some((route) => path.startsWith(route));
-  };
-
-  // Handle authentication state and routing
+  // Initialize authentication state only once
   useEffect(() => {
-    const initialize = async () => {
+    let isMounted = true;
+
+    const initializeAuth = async () => {
       try {
-        const userData = await getCurrentUser();
+        setLoading(true);
 
-        if (userData) {
-          setClient(userData);
+        // Try to get current user first
+        let userData = await getCurrentUser();
 
-          // If user is logged in and tries to access auth routes, redirect appropriately
-          if (isAuthRoute(pathname)) {
-            const params = new URLSearchParams(window.location.search);
-            const returnUrl = params.get("returnUrl");
-            router.replace(returnUrl || "/dashboard"); // Adjust the redirect as needed
-          }
-        } else if (isProtectedRoute(pathname)) {
-          // If user is not logged in and tries to access protected routes, redirect to login
-          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
+        if (!userData) {
+          // If no user found, try institution
+          userData = await getCurrentInstitution();
+        }
+
+        if (isMounted) {
+          setUser(userData);
+          setInitialized(true);
         }
       } catch (error) {
-        console.error("Authentication initialization error:", error);
-        if (isProtectedRoute(pathname)) {
-          router.replace(`/login?returnUrl=${encodeURIComponent(pathname)}`);
+        console.error("Auth initialization error:", error);
+        if (isMounted) {
+          setUser(null);
+          setInitialized(true);
         }
       } finally {
-        setLoading(false);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
-    initialize();
-  }, [pathname]);
+    initializeAuth();
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   // Login handler
-  const login = async (username: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+    userType: "user" | "student" | "institution" = "user",
+    institutionId?: string
+  ) => {
     setLoading(true);
     try {
-      await apiLogin(username, password);
-      const userData = await getCurrentUser();
-      setClient(userData);
+      let userData: User | null = null;
 
-      // After successful login, redirect to returnUrl if it exists
-      const params = new URLSearchParams(window.location.search);
-      const returnUrl = params.get("returnUrl");
-      router.push(returnUrl || "/dashboard"); // Adjust the redirect as needed
+      // Call appropriate login API based on user type
+      if (userType === "institution") {
+        await loginInstitution(email, password);
+        userData = await getCurrentInstitution();
+      } else if (userType === "student" && institutionId) {
+        await loginStudent(email, password, institutionId);
+        userData = await getCurrentUser();
+      } else {
+        await loginUser(email, password);
+        userData = await getCurrentUser();
+      }
+
+      if (userData) {
+        setUser(userData);
+
+        // Handle redirect after successful login
+        const params = new URLSearchParams(window.location.search);
+        const returnUrl = params.get("returnUrl");
+
+        if (returnUrl && returnUrl !== "/login" && returnUrl !== "/register") {
+          router.push(decodeURIComponent(returnUrl));
+        } else if (userData.role === "institution") {
+          router.push("/institution-dashboard");
+        } else {
+          router.push("/dashboard");
+        }
+      } else {
+        throw new Error("Failed to get user data after login");
+      }
     } catch (error) {
       if (error instanceof ApiError) {
         throw new Error(error.message);
@@ -88,53 +117,76 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Logout handler
-  const logout = async () => {
+  // Registration handler
+  const register = async (userData: {
+    name: string;
+    email: string;
+    password: string;
+  }) => {
     setLoading(true);
     try {
-      await apiLogout();
-      setClient(null);
-      router.push("/"); // Redirect to home or login page after logout
+      await registerUser(userData);
+      // After successful registration, log the user in
+      await login(userData.email, userData.password, "user");
     } catch (error) {
-      console.error("Logout error:", error);
-      // Still clear client state even if API call fails
-      setClient(null);
+      if (error instanceof ApiError) {
+        throw new Error(error.message);
+      }
+      throw new Error("Registration failed. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // // Registration handler
-  // const register = async (clientData: {
-  //   username: string;
-  //   password: string;
-  //   phone: string;
-  // }) => {
-  //   setLoading(true);
-  //   try {
-  //     await registerClient(clientData);
-  //     // Optionally, you can log the user in immediately after registration
-  //     await login(clientData.username, clientData.password);
-  //   } catch (error) {
-  //     if (error instanceof ApiError) {
-  //       throw new Error(error.message);
-  //     }
-  //     throw new Error("Registration failed. Please try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
+  // Logout handler
+  const logout = async () => {
+    setLoading(true);
+    try {
+      await apiLogout();
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      setUser(null);
+      setInitialized(false);
+      setLoading(false);
 
-  // Provide the authentication context to children
+      // Clear any stored data
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.removeItem("user");
+          localStorage.removeItem("institution");
+        } catch (e) {
+          // Ignore localStorage errors
+        }
+      }
+
+      router.push("/");
+    }
+  };
+
+  // Don't render children until auth is initialized
+  if (!initialized) {
+    return (
+      <div className="min-h-screen bg-background pt-32 pb-20">
+        <div className="container px-4">
+          <div className="max-w-4xl mx-auto text-center">
+            <div className="w-12 h-12 animate-spin mx-auto mb-4 border-4 border-primary border-t-transparent rounded-full" />
+            <p className="text-muted-foreground">Initializing...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <AuthContext.Provider
       value={{
-        client,
+        user,
         login,
         logout,
-
+        register,
         loading,
-        isAuthenticated: !!client,
+        isAuthenticated: !!user,
       }}
     >
       {children}

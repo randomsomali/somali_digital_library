@@ -1,15 +1,13 @@
 import { getDictionary } from "@/lib/dictionary";
+import { AboutUs } from "@/components/about/about-us";
 
 export default async function AboutPage({
-  params: { lang },
+  params,
 }: {
   params: { lang: string };
 }) {
+  const { lang } = await params;
   const dictionary = await getDictionary(lang as "en" | "ar");
 
-  return (
-    <div>
-      <h1>{dictionary.about.title}</h1>
-    </div>
-  );
+  return <AboutUs dictionary={dictionary} lang={lang} />;
 }

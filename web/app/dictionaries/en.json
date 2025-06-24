@@ -11,34 +11,115 @@
     "library": {
       "title": "Library",
       "books": "Books",
-      "research": "Research Papers",
+      "research": "Research",
       "articles": "Articles"
     },
     "about": "About",
-    "contact": "Contact"
+    "contact": "Contact",
+    "blog": "Blog",
+    "create": "Create",
+    "joinCommunity": "Join Community"
   },
   "auth": {
     "login": "Login",
     "signup": "Sign Up",
+    "register": "Register",
     "profile": "Profile",
     "username": "Username",
+    "email": "Email",
+    "name": "Full Name",
     "password": "Password",
     "phone": "Phone",
     "logout": "Logout",
     "loginSuccess": "Login successful",
-    "registerSuccess": "User  registered successfully",
+    "registerSuccess": "User registered successfully",
     "invalidCredentials": "Invalid username or password",
-    "userNotFound": "User  not found",
-    "usernameExists": "Username or phone already exists"
+    "userNotFound": "User not found",
+    "usernameExists": "Username or phone already exists",
+    "emailExists": "Email already exists",
+    "welcomeBack": "Welcome back",
+    "createAccount": "Create your account",
+    "loginWithEmail": "Login with your email",
+    "loginWithApple": "Login with Apple",
+    "loginWithGoogle": "Login with Google",
+    "orContinueWith": "Or continue with",
+    "forgotPassword": "Forgot your password?",
+    "dontHaveAccount": "Don't have an account?",
+    "alreadyHaveAccount": "Already have an account?",
+    "termsOfService": "Terms of Service",
+    "privacyPolicy": "Privacy Policy",
+    "byContinuing": "By clicking continue, you agree to our",
+    "agreeTo": "you agree to our",
+    "and": "and",
+    "tabs": {
+      "user": "User",
+      "student": "Student",
+      "institution": "Institution"
+    },
+    "institution": {
+      "select": "Select Institution",
+      "placeholder": "Choose your institution",
+      "required": "Please select an institution"
+    },
+    "form": {
+      "name": "Full Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "institution": "Institution",
+      "submit": "Continue",
+      "loading": "Loading..."
+    },
+    "errors": {
+      "required": "This field is required",
+      "invalidEmail": "Please enter a valid email address",
+      "passwordTooShort": "Password must be at least 6 characters",
+      "passwordTooLong": "Password cannot exceed 100 characters",
+      "nameTooLong": "Name cannot exceed 255 characters",
+      "emailTooLong": "Email cannot exceed 100 characters",
+      "passwordsDontMatch": "Passwords don't match",
+      "selectInstitution": "Please select an institution"
+    }
+  },
+  "common": {
+    "logo": "Somali Digital Library",
+    "search": "Search",
+    "language": "Language",
+    "theme": "Theme",
+    "joinCommunity": "Join Community",
+    "create": "Create"
   },
   "home": {
     "hero": {
-      "title": "Your Gateway to Digital Knowledge",
-      "description": "Access thousands of books, journals, and research papers from leading publishers and institutions.",
-      "explore": "Explore Now",
-      "learnMore": "Learn More"
+      "announcement": "NEW: 15,000+ Somali Books Added This Week",
+      "title": "The Largest Digital Library",
+      "subtitle": "of Somali Literature",
+      "description": "Access thousands of books, journals, and research papers from leading publishers and institutions across Somalia and the diaspora.",
+      "searchPlaceholder": "Search for books, authors, topics...",
+      "explore": "Explore Library",
+      "learnMore": "Learn More",
+      "joinCommunity": "Join Community",
+      "features": {
+        "design": {
+          "title": "Digital Preservation",
+          "description": "Preserving Somali literature for future generations through digital archiving.",
+          "action": "LEARN MORE"
+        },
+        "github": {
+          "title": "Open Source",
+          "description": "Contribute to the preservation of Somali knowledge and culture.",
+          "action": "CONTRIBUTE"
+        },
+        "community": {
+          "title": "Global Community",
+          "description": "Connect with scholars, researchers, and literature enthusiasts worldwide.",
+          "action": "JOIN NOW"
+        }
+      }
     },
     "stats": {
+      "title": "Our Impact",
+      "description": "Discover the scale of our digital library platform",
       "books": "Books",
       "journals": "Journals",
       "articles": "Articles",
@@ -46,15 +127,100 @@
     },
     "categories": {
       "title": "Explore Categories",
-      "description": "Browse through various categories to discover content that suits your interests."
+      "description": "Browse through different knowledge categories to discover content that matches your interests."
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "About Somali Digital Library",
+      "title": "Preserving Somali",
+      "subtitle": "Knowledge & Culture",
+      "description": "We are dedicated to preserving and sharing the rich cultural heritage and knowledge of Somalia through our comprehensive digital library platform. Our mission is to make Somali literature, research, and educational resources accessible to everyone, everywhere.",
+      "exploreLibrary": "Explore Library",
+      "joinUs": "Join Our Community"
+    },
+    "stats": {
+      "title": "Our Impact in Numbers",
+      "description": "Discover the scale of our digital preservation efforts and community impact",
+      "books": "Digital Books",
+      "booksDesc": "Preserved and digitized",
+      "users": "Active Users",
+      "usersDesc": "From around the world",
+      "institutions": "Partner Institutions",
+      "institutionsDesc": "Universities and libraries",
+      "years": "Years of Service",
+      "yearsDesc": "Dedicated to preservation"
+    },
+    "mission": {
+      "badge": "Our Mission",
+      "title": "Preserving Somali Heritage for Future Generations",
+      "description": "Our mission is to create the world's most comprehensive digital library of Somali literature, research, and cultural materials. We believe that knowledge preservation is essential for cultural continuity and educational advancement.",
+      "goals": [
+        "Digitize and preserve rare Somali manuscripts and publications",
+        "Provide free access to educational resources for students and researchers",
+        "Foster collaboration between Somali scholars and institutions worldwide",
+        "Create a sustainable platform for cultural preservation and knowledge sharing"
+      ]
+    },
+    "vision": {
+      "title": "Our Vision for the Future",
+      "description": "We envision a world where Somali knowledge and culture are preserved, accessible, and celebrated globally. Our platform serves as a bridge between the past and future, ensuring that valuable cultural heritage is never lost.",
+      "pillars": [
+        "Global Accessibility",
+        "Cultural Preservation",
+        "Educational Excellence",
+        "Community Collaboration"
+      ]
+    },
+    "values": {
+      "title": "Our Core Values",
+      "description": "These fundamental principles guide everything we do in our mission to preserve and share Somali knowledge",
+      "preservation": {
+        "title": "Cultural Preservation",
+        "description": "We are committed to preserving the rich cultural heritage and knowledge of Somalia for future generations."
+      },
+      "community": {
+        "title": "Community First",
+        "description": "We believe in building strong communities around knowledge sharing and cultural exchange."
+      },
+      "innovation": {
+        "title": "Innovation",
+        "description": "We continuously innovate to provide the best digital library experience and preservation methods."
+      },
+      "accessibility": {
+        "title": "Accessibility",
+        "description": "We ensure that knowledge is accessible to everyone, regardless of location or background."
+      }
+    },
+    "features": {
+      "title": "What Makes Us Special",
+      "description": "Discover the unique features that set our digital library apart and make it the premier destination for Somali knowledge",
+      "digitalLibrary": {
+        "title": "Comprehensive Digital Library",
+        "description": "Access thousands of books, journals, research papers, and cultural materials in one centralized platform."
+      },
+      "educational": {
+        "title": "Educational Excellence",
+        "description": "Supporting students, researchers, and educators with high-quality academic resources and materials."
+      },
+      "global": {
+        "title": "Global Reach",
+        "description": "Connecting Somali communities worldwide and fostering international collaboration and knowledge exchange."
+      }
+    },
+    "cta": {
+      "title": "Join Us in Preserving Somali Heritage",
+      "description": "Be part of our mission to preserve and share Somali knowledge and culture. Whether you're a student, researcher, or cultural enthusiast, there's a place for you in our community.",
+      "joinNow": "Join Our Community",
+      "exploreLibrary": "Explore Library"
     }
   },
   "categories": {
     "title": "Featured Categories",
-    "description": "Browse through various categories of knowledge and explore the digital library.",
+    "description": "Browse through various knowledge categories and explore the digital library.",
     "academic": {
       "title": "Academic",
-      "description": "Access a wide range of academic resources and materials."
+      "description": "Access to a wide range of academic resources and materials."
     },
     "research": {
       "title": "Research",
@@ -62,12 +228,12 @@
     },
     "literature": {
       "title": "Literature",
-      "description": "Dive into classic and modern literature from renowned authors."
+      "description": "Dive into classical and modern literature from renowned authors."
     }
   },
   "search": {
     "title": "Search the Library",
-    "description": "Find books, journals, articles, and more with advanced search options.",
+    "description": "Search for books, journals, articles, and more using advanced search options.",
     "placeholder": "Search for books, journals, or articles",
     "categoryPlaceholder": "Select category",
     "categories": {
@@ -78,16 +244,10 @@
     },
     "button": "Search"
   },
-  "common": {
-    "logo": "Somali Digital Library",
-    "search": "Search",
-    "language": "Language",
-    "theme": "Theme"
-  },
   "footer": {
     "about": {
       "title": "About Us",
-      "description": "Learn more about our mission and the services we offer to help you explore the world of knowledge."
+      "description": "Learn about our mission and the services we provide to help you explore the world of knowledge."
     },
     "quickLinks": {
       "title": "Quick Links",
@@ -105,7 +265,7 @@
           "href": "/resources"
         },
         {
-          "label": "Contact Us",
+          "label": "Contact",
           "href": "/contact"
         }
       ]
@@ -128,23 +288,20 @@
       ]
     },
     "newsletter": {
-      "title": "Subscribe to our Newsletter",
+      "title": "Subscribe to Our Newsletter",
       "description": "Stay updated with the latest news, articles, and resources by subscribing to our newsletter.",
       "placeholder": "Enter your email",
       "button": "Subscribe"
     },
     "copyright": "All rights reserved."
   },
-  "about": {
-    "title": "Access a wide range of academic resources and materials."
-  },
   "resources": {
-    "title": "Digital Library Resources",
-    "description": "Explore our collection of academic resources, research papers, and educational materials.",
-    "resultsCount": "Showing {count} resources",
+    "title": "Resources",
+    "description": "Explore the diverse collection of digital resources available to you.",
+    "resultsCount": "Found {count} resources",
     "filters": {
-      "title": "Search & Filter",
-      "subtitle": "Refine your search using the filters below",
+      "title": "Filter Resources",
+      "subtitle": "Use the following filters to narrow down resources",
       "category": "Category",
       "type": "Type",
       "year": "Year",
@@ -188,11 +345,36 @@
     "noResults": "No resources found",
     "loading": "Loading resources...",
     "error": "Error loading resources",
-    "retry": "Try Again",
-    "backToList": "Back to Resources",
+    "retry": "Try again",
+    "backToList": "Back to list",
     "notFound": {
-      "title": "Resource Not Found",
+      "title": "Resource not found",
       "description": "The resource you're looking for doesn't exist or has been removed."
     }
+  },
+  "dashboard": {
+    "welcome": "Welcome to your dashboard",
+    "manageAccount": "Manage your account and access your resources",
+    "accountInfo": "Account Information",
+    "myResources": "My Resources",
+    "profileSettings": "Profile Settings",
+    "accessResources": "Access your saved and downloaded resources",
+    "updateProfile": "Update your profile information and preferences",
+    "viewResources": "View Resources",
+    "editProfile": "Edit Profile",
+    "comingSoon": "Coming Soon",
+    "personalizedDashboard": "Your personalized dashboard will be available soon with full features",
+    "institutionDashboard": "Institution Dashboard",
+    "institutionPortal": "Welcome to your institution management portal",
+    "totalStudents": "Total Students",
+    "activeSubscriptions": "Active Subscriptions",
+    "resourcesAccessed": "Resources Accessed",
+    "engagementRate": "Engagement Rate",
+    "institutionInfo": "Institution Information",
+    "quickActions": "Quick Actions",
+    "manageStudents": "Manage Students",
+    "viewReports": "View Reports",
+    "updateInstitutionInfo": "Update Institution Info",
+    "institutionFeatures": "This institution dashboard will be available soon with full management features"
   }
 }

@@ -50,18 +50,7 @@ export const getCategoryDetails = async (req, res, next) => {
 
 export const createCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({
-        success: false,
-        error: "Category name is required",
-      });
-    }
-
-    const categoryId = await Category.create({ name });
-    const category = await Category.findByIdForAdmin(categoryId);
-
+    const category = await Category.create(req.body);
     res.status(201).json({
       success: true,
       data: category,
@@ -79,16 +68,7 @@ export const createCategory = async (req, res, next) => {
 
 export const updateCategory = async (req, res, next) => {
   try {
-    const { name } = req.body;
-
-    if (!name) {
-      return res.status(400).json({
-        success: false,
-        error: "Category name is required",
-      });
-    }
-
-    const category = await Category.findByIdForAdmin(req.params.id);
+    const category = await Category.findById(req.params.id);
     if (!category) {
       return res.status(404).json({
         success: false,
@@ -96,8 +76,7 @@ export const updateCategory = async (req, res, next) => {
       });
     }
 
-    const updatedCategory = await Category.update(req.params.id, { name });
-
+    const updatedCategory = await Category.update(req.params.id, req.body);
     res.json({
       success: true,
       data: updatedCategory,

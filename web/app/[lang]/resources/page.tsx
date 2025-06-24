@@ -53,13 +53,15 @@ export default async function ResourcesPage({
   });
 
   return (
-    <main className="container py-6 space-y-6">
-      <ResourcesContent
-        initialResources={initialResources}
-        dictionary={dictionary}
-        lang={lang}
-        initialFilters={filters}
-      />
+    <main className="min-h-screen bg-background pt-32 pb-20">
+      <div className="container px-4">
+        <ResourcesContent
+          initialResources={initialResources}
+          dictionary={dictionary}
+          lang={lang}
+          initialFilters={filters}
+        />
+      </div>
     </main>
   );
 }

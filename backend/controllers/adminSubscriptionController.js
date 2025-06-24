@@ -50,60 +50,60 @@ export const getSubscriptionDetails = async (req, res, next) => {
 
 export const createSubscription = async (req, res, next) => {
   try {
-    const { name, type, price, duration_days } = req.body;
-
-    // Validate required fields
-    if (!name || !type || !price || !duration_days) {
+    // Parse features if it's a string
+    let features = [];
+    try {
+      features =
+        typeof req.body.features === "string"
+          ? JSON.parse(req.body.features)
+          : Array.isArray(req.body.features)
+          ? req.body.features
+          : [];
+    } catch (error) {
       return res.status(400).json({
         success: false,
-        error: "Name, type, price, and duration_days are required",
+        error: "Invalid features format",
       });
     }
 
-    // Validate type
-    if (!["user", "institution"].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid type. Must be 'user' or 'institution'",
-      });
-    }
-
-    // Validate price and duration
-    if (isNaN(price) || price <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Price must be a positive number",
-      });
-    }
-
-    if (!Number.isInteger(duration_days) || duration_days <= 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Duration days must be a positive integer",
-      });
-    }
-
-    const subscriptionId = await Subscription.create({
-      name,
-      type,
-      price: parseFloat(price),
-      duration_days: parseInt(duration_days),
+    const subscription = await Subscription.create({
+      ...req.body,
+      features,
     });
-
-    const subscription = await Subscription.findByIdForAdmin(subscriptionId);
 
     res.status(201).json({
       success: true,
       data: subscription,
     });
   } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        success: false,
+        error: "Subscription name already exists",
+      });
+    }
     next(error);
   }
 };
 
 export const updateSubscription = async (req, res, next) => {
   try {
-    const { name, type, price, duration_days } = req.body;
+    // Parse features if provided
+    if (req.body.features) {
+      try {
+        req.body.features =
+          typeof req.body.features === "string"
+            ? JSON.parse(req.body.features)
+            : Array.isArray(req.body.features)
+            ? req.body.features
+            : [];
+      } catch (error) {
+        return res.status(400).json({
+          success: false,
+          error: "Invalid features format",
+        });
+      }
+    }
 
     const subscription = await Subscription.findByIdForAdmin(req.params.id);
     if (!subscription) {
@@ -113,50 +113,21 @@ export const updateSubscription = async (req, res, next) => {
       });
     }
 
-    // Validate type if provided
-    if (type && !["user", "institution"].includes(type)) {
-      return res.status(400).json({
-        success: false,
-        error: "Invalid type. Must be 'user' or 'institution'",
-      });
-    }
-
-    // Validate price if provided
-    if (price !== undefined && (isNaN(price) || price <= 0)) {
-      return res.status(400).json({
-        success: false,
-        error: "Price must be a positive number",
-      });
-    }
-
-    // Validate duration if provided
-    if (
-      duration_days !== undefined &&
-      (!Number.isInteger(parseInt(duration_days)) || duration_days <= 0)
-    ) {
-      return res.status(400).json({
-        success: false,
-        error: "Duration days must be a positive integer",
-      });
-    }
-
-    const updateData = {};
-    if (name) updateData.name = name;
-    if (type) updateData.type = type;
-    if (price !== undefined) updateData.price = parseFloat(price);
-    if (duration_days !== undefined)
-      updateData.duration_days = parseInt(duration_days);
-
     const updatedSubscription = await Subscription.update(
       req.params.id,
-      updateData
+      req.body
     );
-
     res.json({
       success: true,
       data: updatedSubscription,
     });
   } catch (error) {
+    if (error.code === "ER_DUP_ENTRY") {
+      return res.status(400).json({
+        success: false,
+        error: "Subscription name already exists",
+      });
+    }
     next(error);
   }
 };

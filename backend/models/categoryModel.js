@@ -86,12 +86,22 @@ class Category {
   }
 
   static async create(data) {
+    // Validate name length
+    if (data.name.length > 100) {
+      throw new Error("Name cannot exceed 100 characters");
+    }
+
     const sql = `INSERT INTO categories (name) VALUES (?)`;
     const result = await db.query(sql, [data.name]);
-    return result.insertId;
+    return this.findByIdForAdmin(result.insertId);
   }
 
   static async update(id, data) {
+    // Validate name length
+    if (data.name && data.name.length > 100) {
+      throw new Error("Name cannot exceed 100 characters");
+    }
+
     const sql = `UPDATE categories SET name = ? WHERE id = ?`;
     await db.query(sql, [data.name, id]);
     return this.findByIdForAdmin(id);
@@ -100,6 +110,19 @@ class Category {
   static async delete(id) {
     const sql = `DELETE FROM categories WHERE id = ?`;
     await db.query(sql, [id]);
+  }
+
+  static async exists(id) {
+    if (!id) return false;
+
+    const sql = `
+      SELECT COUNT(*) as count
+      FROM categories
+      WHERE id = ?
+    `;
+
+    const [result] = await db.query(sql, [id]);
+    return result.count > 0;
   }
 }
 

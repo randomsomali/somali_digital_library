@@ -8,10 +8,11 @@ export interface Resource {
     type: string;
     language: string;
     paid: 'free' | 'premium';
-    file_url: string;
+    file_public_id: string;
     category_id: number;
     category_name: string;
     downloads: number;
+    download_url: string;
 }
 
 export interface ResourceFilters {

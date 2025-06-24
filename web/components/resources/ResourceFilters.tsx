@@ -10,7 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, X } from "lucide-react";
+import { Search, X, Filter } from "lucide-react";
 import { ResourceFilters as Filters } from "@/types/resource";
 import { AppDictionary } from "@/types/dictionary";
 import { Category } from "@/types/resource";
@@ -72,23 +72,28 @@ export function ResourceFilters({
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8">
       {/* Header with Clear Button */}
-      <div className="flex items-center justify-between pb-4 border-b">
-        <div>
-          <h2 className="text-lg font-semibold">
-            {dictionary.resources.filters.title}
-          </h2>
-          <p className="text-sm text-muted-foreground mt-1">
-            {dictionary.resources.filters.subtitle}
-          </p>
+      <div className="flex items-center justify-between pb-6 border-b border-border/50">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-primary/10 to-primary/20 rounded-lg flex items-center justify-center">
+            <Filter className="w-5 h-5 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-xl font-semibold text-foreground">
+              {dictionary.resources.filters.title}
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {dictionary.resources.filters.subtitle}
+            </p>
+          </div>
         </div>
         {hasActiveFilters && (
           <Button
             variant="ghost"
             size="sm"
             onClick={handleClear}
-            className="text-muted-foreground hover:text-primary"
+            className="text-muted-foreground hover:text-primary hover:bg-accent/50 transition-all duration-300"
           >
             <X className="h-4 w-4 mr-2" />
             {dictionary.resources.filters.clear}
@@ -98,26 +103,26 @@ export function ResourceFilters({
 
       {/* Search Bar */}
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
         <Input
           placeholder={dictionary.resources.filters.searchPlaceholder}
-          className="pl-10 bg-background/50 border-muted"
+          className="pl-12 h-12 text-base bg-background/50 border-border/50 focus:border-primary transition-colors duration-200 rounded-xl"
           value={filters.search}
           onChange={(e) => handleChange("search", e.target.value)}
         />
       </div>
 
       {/* Filter Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">
             {dictionary.resources.filters.type}
           </label>
           <Select
             value={filters.type}
             onValueChange={(value) => handleChange("type", value)}
           >
-            <SelectTrigger className="bg-background">
+            <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary transition-colors duration-200 h-12 rounded-xl">
               <SelectValue placeholder={dictionary.resources.filters.type} />
             </SelectTrigger>
             <SelectContent>
@@ -133,15 +138,15 @@ export function ResourceFilters({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">
             {dictionary.resources.filters.year}
           </label>
           <Select
             value={filters.year}
             onValueChange={(value) => handleChange("year", value)}
           >
-            <SelectTrigger className="bg-background">
+            <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary transition-colors duration-200 h-12 rounded-xl">
               <SelectValue placeholder={dictionary.resources.filters.year} />
             </SelectTrigger>
             <SelectContent>
@@ -157,15 +162,15 @@ export function ResourceFilters({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">
             {dictionary.resources.filters.language}
           </label>
           <Select
             value={filters.language}
             onValueChange={(value) => handleChange("language", value)}
           >
-            <SelectTrigger className="bg-background">
+            <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary transition-colors duration-200 h-12 rounded-xl">
               <SelectValue
                 placeholder={dictionary.resources.filters.language}
               />
@@ -183,15 +188,15 @@ export function ResourceFilters({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <label className="text-sm font-medium">
+        <div className="space-y-3">
+          <label className="text-sm font-medium text-foreground">
             {dictionary.resources.filters.category}
           </label>
           <Select
             value={filters.category_id}
             onValueChange={(value) => handleChange("category_id", value)}
           >
-            <SelectTrigger className="bg-background">
+            <SelectTrigger className="bg-background/50 border-border/50 focus:border-primary transition-colors duration-200 h-12 rounded-xl">
               <SelectValue
                 placeholder={dictionary.resources.filters.category}
               />

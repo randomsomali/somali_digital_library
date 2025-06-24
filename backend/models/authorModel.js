@@ -67,12 +67,22 @@ class Author {
   }
 
   static async create(data) {
+    // Validate name length
+    if (data.name.length > 255) {
+      throw new Error("Name cannot exceed 255 characters");
+    }
+
     const sql = `INSERT INTO authors (name) VALUES (?)`;
     const result = await db.query(sql, [data.name]);
-    return result.insertId;
+    return this.findByIdForAdmin(result.insertId);
   }
 
   static async update(id, data) {
+    // Validate name length
+    if (data.name && data.name.length > 255) {
+      throw new Error("Name cannot exceed 255 characters");
+    }
+
     const sql = `UPDATE authors SET name = ? WHERE author_id = ?`;
     await db.query(sql, [data.name, id]);
     return this.findByIdForAdmin(id);
@@ -81,6 +91,27 @@ class Author {
   static async delete(id) {
     const sql = `DELETE FROM authors WHERE author_id = ?`;
     await db.query(sql, [id]);
+  }
+
+  static async exists(id) {
+    const sql = "SELECT author_id FROM authors WHERE author_id = ?";
+    const [result] = await db.query(sql, [id]);
+    return !!result;
+  }
+
+  static async validateAuthors(authorIds) {
+    if (!Array.isArray(authorIds) || authorIds.length === 0) {
+      return false;
+    }
+
+    const sql = `
+      SELECT COUNT(DISTINCT author_id) as count
+      FROM authors
+      WHERE author_id IN (?)
+    `;
+
+    const [result] = await db.query(sql, [authorIds]);
+    return result.count === authorIds.length;
   }
 }
 

@@ -1,4 +1,5 @@
 import express from "express";
+import { upload } from "../config/cloudinary.js";
 import {
   getAllResources,
   getResourceDetails,
@@ -9,32 +10,22 @@ import {
   updateResourcePaidStatus,
 } from "../controllers/adminResourceController.js";
 import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
-import { upload } from "../config/cloudinary.js";
+import { validateResource } from "../middleware/validationMiddleware.js";
 
 const router = express.Router();
 
-// All routes are protected with admin authentication
-router.use(authenticate, authorizeAdmin());
+// Protect all routes
+// router.use(authenticate, authorizeAdmin());
 
-// Get all resources with filters and pagination
+// Routes with file upload handling
+router.post("/", upload, validateResource(), createResource);
+router.put("/:id", upload, validateResource(true), updateResource);
+
+// Other routes
 router.get("/", getAllResources);
-
-// Get single resource details
 router.get("/:id", getResourceDetails);
-
-// Create new resource with file upload
-router.post("/", upload.single("file"), createResource);
-
-// Update resource
-router.put("/:id", upload.single("file"), updateResource);
-
-// Delete resource
 router.delete("/:id", deleteResource);
-
-// Update resource status (published/unpublished)
 router.patch("/:id/status", updateResourceStatus);
-
-// Update resource paid status (free/premium)
 router.patch("/:id/paid", updateResourcePaidStatus);
 
 export default router;

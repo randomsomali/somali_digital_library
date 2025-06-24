@@ -34,15 +34,25 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import NotificationDialog from "@/components/ui/NotificationDialog";
+import { z } from "zod";
+
+const categorySchema = z.object({
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name cannot exceed 100 characters")
+    .regex(/^[a-zA-Z0-9\s\-'.]+$/, "Name can only contain letters, numbers, spaces, hyphens, apostrophes, and periods")
+});
 
 const validateForm = (formData) => {
-  const errors = {};
-  
-  if (!formData.name.trim()) {
-    errors.name = "Category name is required";
+  try {
+    categorySchema.parse(formData);
+    return {};
+  } catch (error) {
+    return error.errors.reduce((acc, curr) => {
+      acc[curr.path[0]] = curr.message;
+      return acc;
+    }, {});
   }
-
-  return errors;
 };
 
 const CategoryForm = ({ onSubmit, initialData = null, onCancel }) => {

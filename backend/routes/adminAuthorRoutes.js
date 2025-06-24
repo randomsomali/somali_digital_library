@@ -7,6 +7,7 @@ import {
   deleteAuthor,
 } from "../controllers/adminAuthorController.js";
 import { authenticate, authorizeAdmin } from "../middleware/authMiddleware.js";
+import { validateAuthor } from "../middleware/validationMiddleware.js";
 
 const router = express.Router();
 
@@ -20,10 +21,10 @@ router.get("/", getAllAuthors);
 router.get("/:id", getAuthorDetails);
 
 // Create new author
-router.post("/", createAuthor);
+router.post("/", validateAuthor(), createAuthor);
 
 // Update author
-router.put("/:id", updateAuthor);
+router.put("/:id", validateAuthor(), updateAuthor);
 
 // Delete author
 router.delete("/:id", deleteAuthor);
