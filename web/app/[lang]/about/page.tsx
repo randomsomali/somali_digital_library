@@ -6,7 +6,7 @@ export default async function AboutPage({
 }: {
   params: { lang: string };
 }) {
-  const { lang } = await params;
+  const { lang } = params;
   const dictionary = await getDictionary(lang as "en" | "ar");
 
   return <AboutUs dictionary={dictionary} lang={lang} />;
