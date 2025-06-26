@@ -251,7 +251,7 @@ export async function checkUserActiveSubscription(userId: string): Promise<boole
     try {
         const response = await api.get<{ success: boolean; active: boolean }>(`/admin/user-subscriptions/user/${userId}/active`);
         return response.data.active;
-    } catch (error) {
+    } catch {
         return false;
     }
 }
@@ -261,7 +261,7 @@ export async function checkInstitutionActiveSubscription(institutionId: string):
     try {
         const response = await api.get<{ success: boolean; active: boolean }>(`/admin/user-subscriptions/institution/${institutionId}/active`);
         return response.data.active;
-    } catch (error) {
+    } catch {
         return false;
     }
 }
