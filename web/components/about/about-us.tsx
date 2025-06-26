@@ -8,14 +8,10 @@ import { AppDictionary } from "@/types/dictionary";
 import {
   BookOpen,
   Target,
-  Heart,
-  Lightbulb,
-  Shield,
   ArrowRight,
   Library,
   GraduationCap,
   Globe2,
-  Users2,
 } from "lucide-react";
 import Link from "next/link";
 

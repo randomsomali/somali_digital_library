@@ -34,8 +34,8 @@ export function ResourceFilters({
   years,
   languages,
   categories,
-  initialFilters = {}, // removed unused variable warning by keeping as prop but not using it
-}: ResourceFiltersProps) {
+}: // initialFilters = {}, // removed unused variable warning by keeping as prop but not using it
+ResourceFiltersProps) {
   const [filters, setFilters] = useState<Filters>({
     search: "",
     type: "all",

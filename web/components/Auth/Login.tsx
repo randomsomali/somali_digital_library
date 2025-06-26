@@ -92,7 +92,6 @@ export default function Login({ dictionary, lang }: LoginProps) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -123,14 +122,19 @@ export default function Login({ dictionary, lang }: LoginProps) {
       });
     } catch (error: unknown) {
       let errorMessage = dictionary.auth.invalidCredentials;
-      if (
+
+      // Type-safe error handling
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else if (
         error &&
         typeof error === "object" &&
         "message" in error &&
-        typeof (error as any).message === "string"
+        typeof error.message === "string"
       ) {
-        errorMessage = (error as { message: string }).message;
+        errorMessage = error.message;
       }
+
       setBackendError(errorMessage);
       toast({
         title: "Login Failed",
@@ -141,7 +145,6 @@ export default function Login({ dictionary, lang }: LoginProps) {
       setLoading(false);
     }
   };
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
