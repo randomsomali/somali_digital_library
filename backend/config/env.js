@@ -12,7 +12,7 @@ dotenv.config({
 export const {
   PORT,
   NODE_ENV = "development",
-  FRONTEND_URLS = "http://localhost:3000,http://localhost:5173",
+  FRONTEND_URLS = "http://localhost:3000,http://localhost:5173,https://somalilibrary.vercel.app",
   // Database
   MYSQL_HOST = "localhost",
   MYSQL_USER,
