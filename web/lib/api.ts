@@ -110,7 +110,6 @@ export const getCurrentUser = async (): Promise<User | null> => {
         const { data } = await api.get('/auth/me/user');
         return data.user;
     } catch (error) {
-        const axiosError = error as AxiosError;
         // Don't call logout here, let AuthContext handle it
         // Just return null for any error
         return null;
@@ -122,7 +121,6 @@ export const getCurrentInstitution = async (): Promise<User | null> => {
         const { data } = await api.get('/auth/me/institution');
         return data.institution;
     } catch (error) {
-        const axiosError = error as AxiosError;
         // Don't call logout here, let AuthContext handle it
         // Just return null for any error
         return null;
