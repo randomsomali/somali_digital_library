@@ -109,7 +109,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
     try {
         const { data } = await api.get('/auth/me/user');
         return data.user;
-    } catch (error) {
+    } catch {
         // Don't call logout here, let AuthContext handle it
         // Just return null for any error
         return null;
@@ -120,7 +120,7 @@ export const getCurrentInstitution = async (): Promise<User | null> => {
     try {
         const { data } = await api.get('/auth/me/institution');
         return data.institution;
-    } catch (error) {
+    } catch {
         // Don't call logout here, let AuthContext handle it
         // Just return null for any error
         return null;
