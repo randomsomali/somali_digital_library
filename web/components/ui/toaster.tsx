@@ -10,12 +10,20 @@ import {
 } from "@/components/ui/toast";
 import { useToast } from "@/components/ui/use-toast";
 
+interface ToastData {
+  id: string;
+  title?: string;
+  description?: string;
+  action?: React.ReactNode;
+  [key: string]: unknown;
+}
+
 export function Toaster() {
   const { toasts } = useToast();
 
   return (
     <ToastProvider>
-      {toasts.map(function (toast) {
+      {toasts.map(function (toast: ToastData) {
         const { id, title, description, action, ...props } = toast;
         return (
           <Toast key={id} {...props}>
@@ -25,7 +33,7 @@ export function Toaster() {
                 <ToastDescription>{description}</ToastDescription>
               )}
             </div>
-            {action}
+            {action && action}
             <ToastClose />
           </Toast>
         );
