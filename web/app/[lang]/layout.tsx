@@ -22,7 +22,7 @@ export default async function LangLayout({
   params,
 }: {
   children: React.ReactNode;
-  params: { lang: string };
+  params: Promise<{ lang: string }>;
 }) {
   const { lang } = await params;
   const validLang = ["en", "ar"].includes(lang) ? lang : "en";
@@ -46,7 +46,7 @@ export default async function LangLayout({
 // export async function generateMetadata({
 //   params,
 // }: {
-//   params: { lang: string };
+//   params: Promise<{ lang: string }>;
 // }) {
 //   const dictionary = await getDictionary(params.lang);
 

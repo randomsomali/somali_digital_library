@@ -4,10 +4,10 @@ import { ResourceDetails } from "@/components/resources/ResourceDetails";
 import { ResourceNotFound } from "@/components/resources/ResourceNotFound";
 
 interface ResourcePageProps {
-  params: {
+  params: Promise<{
     lang: string;
     id: string;
-  };
+  }>;
 }
 
 export default async function ResourcePage({ params }: ResourcePageProps) {

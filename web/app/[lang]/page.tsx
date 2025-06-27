@@ -4,7 +4,11 @@ import { Hero } from "@/components/home/hero";
 import { Stats } from "@/components/home/stats";
 import { AboutUs } from "@/components/about/about-us";
 
-export default async function Home({ params }: { params: { lang: string } }) {
+export default async function Home({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
   const { lang } = await params;
 
   const dictionary = await getDictionary(lang as "en" | "ar");

@@ -11,6 +11,7 @@ import { getSubscriptionPlans } from "@/lib/api";
 import { useToast } from "@/components/ui/use-toast";
 import { Crown, Check, ExternalLink, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { use } from "react";
 
 interface SubscriptionPlan {
   subscription_id: number;
@@ -20,7 +21,12 @@ interface SubscriptionPlan {
   duration_days: number;
 }
 
-export default function PricingPage({ params }: { params: { lang: string } }) {
+export default function PricingPage({
+  params,
+}: {
+  params: Promise<{ lang: string }>;
+}) {
+  const { lang } = use(params);
   const [plans, setPlans] = useState<SubscriptionPlan[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
@@ -96,7 +102,7 @@ Please set up my subscription manually. Thank you!`;
         <div className="max-w-4xl mx-auto">
           {/* Back Button */}
           <div className="mb-8">
-            <Link href={`/${params.lang}/resources`}>
+            <Link href={`/${lang}/resources`}>
               <Button variant="ghost" className="gap-2">
                 <ArrowLeft className="h-4 w-4" />
                 Back to Resources
