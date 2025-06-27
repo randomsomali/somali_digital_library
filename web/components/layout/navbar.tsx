@@ -26,6 +26,7 @@ export function Navbar({ dictionary, lang }: NavbarProps) {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+    console.log("user", user);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);

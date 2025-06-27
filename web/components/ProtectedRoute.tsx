@@ -15,13 +15,13 @@ export default function ProtectedRoute({
   requiredType,
   lang,
 }: ProtectedRouteProps) {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, initialized } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (loading || isRedirecting) return;
+    if (loading || !initialized) return;
 
     // If not authenticated, redirect to login
     if (!isAuthenticated) {
@@ -57,7 +57,7 @@ export default function ProtectedRoute({
     router,
     pathname,
     lang,
-    isRedirecting,
+    initialized,
   ]);
 
   // Reset redirecting state when pathname changes
@@ -66,14 +66,18 @@ export default function ProtectedRoute({
   }, [pathname]);
 
   // Show loading while checking authentication or redirecting
-  if (loading || isRedirecting) {
+  if (loading || isRedirecting || !initialized) {
     return (
       <div className="min-h-screen bg-background pt-32 pb-20">
         <div className="container px-4">
           <div className="max-w-4xl mx-auto text-center">
             <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 text-primary" />
             <p className="text-muted-foreground">
-              {loading ? "Loading..." : "Redirecting..."}
+              {loading
+                ? "Loading..."
+                : !initialized
+                ? "Initializing..."
+                : "Redirecting..."}
             </p>
           </div>
         </div>

@@ -53,7 +53,7 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(cookieParser());
-// app.use(arcjetMiddleware);
+app.use(arcjetMiddleware);
 
 // Welcome route
 app.get("/", (req, res) => {

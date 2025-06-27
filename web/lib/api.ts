@@ -111,10 +111,8 @@ export const getCurrentUser = async (): Promise<User | null> => {
         return data.user;
     } catch (error) {
         const axiosError = error as AxiosError;
-        if (axiosError.response?.status === 403) {
-            logout();
-        }
-        // Just return null, let AuthContext handle the state
+        // Don't call logout here, let AuthContext handle it
+        // Just return null for any error
         return null;
     }
 };
@@ -125,10 +123,8 @@ export const getCurrentInstitution = async (): Promise<User | null> => {
         return data.institution;
     } catch (error) {
         const axiosError = error as AxiosError;
-        // if it's a 403, call logout and return null
-        if (axiosError.response?.status === 403) {
-            logout();
-        }
+        // Don't call logout here, let AuthContext handle it
+        // Just return null for any error
         return null;
     }
 };

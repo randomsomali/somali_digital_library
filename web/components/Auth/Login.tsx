@@ -92,6 +92,7 @@ export default function Login({ dictionary, lang }: LoginProps) {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -145,6 +146,7 @@ export default function Login({ dictionary, lang }: LoginProps) {
       setLoading(false);
     }
   };
+
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     if (errors[field]) {
@@ -153,6 +155,19 @@ export default function Login({ dictionary, lang }: LoginProps) {
     if (backendError) {
       setBackendError("");
     }
+  };
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+    // Clear errors when switching tabs
+    setErrors({});
+    setBackendError("");
+    // Reset form data when switching tabs
+    setFormData({
+      email: "",
+      password: "",
+      institution: "",
+    });
   };
 
   return (
@@ -204,7 +219,7 @@ export default function Login({ dictionary, lang }: LoginProps) {
 
               <Tabs
                 value={activeTab}
-                onValueChange={setActiveTab}
+                onValueChange={handleTabChange}
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-3 mb-6">

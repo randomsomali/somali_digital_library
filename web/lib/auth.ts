@@ -19,4 +19,6 @@ export interface AuthContextType {
     register: (userData: { name: string; email: string; password: string; }) => Promise<void>; // Registration function
     loading: boolean; // Loading state
     isAuthenticated: boolean; // Whether the user is authenticated
+    initializeAuth: () => Promise<void>; // Initialize auth state
+    initialized: boolean; // Whether auth has been initialized
 }

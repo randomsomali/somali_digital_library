@@ -27,45 +27,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [initialized, setInitialized] = useState(false);
   const router = useRouter();
 
-  // Initialize authentication state only once
+  // Initialize authentication state on mount
   useEffect(() => {
-    let isMounted = true;
-
-    const initializeAuth = async () => {
-      try {
-        setLoading(true);
-
-        // Try to get current user first
-        let userData = await getCurrentUser();
-
-        if (!userData) {
-          // If no user found, try institution
-          userData = await getCurrentInstitution();
-        }
-
-        if (isMounted) {
-          setUser(userData);
-          setInitialized(true);
-        }
-      } catch (error) {
-        console.error("Auth initialization error:", error);
-        if (isMounted) {
-          setUser(null);
-          setInitialized(true);
-        }
-      } finally {
-        if (isMounted) {
-          setLoading(false);
-        }
-      }
-    };
-
     initializeAuth();
-
-    return () => {
-      isMounted = false;
-    };
   }, []);
+
+  const initializeAuth = async () => {
+    if (initialized) return;
+
+    setLoading(true);
+    try {
+      // Try to get current user first
+      let userData = await getCurrentUser();
+
+      if (!userData) {
+        // If no user found, try institution
+        userData = await getCurrentInstitution();
+      }
+
+      setUser(userData);
+    } catch (error) {
+      console.error("Auth initialization error:", error);
+      setUser(null);
+    } finally {
+      setLoading(false);
+      setInitialized(true);
+    }
+  };
 
   // Login handler
   const login = async (
@@ -147,7 +135,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Logout error:", error);
     } finally {
       setUser(null);
-      setInitialized(false);
       setLoading(false);
 
       // Clear any stored data
@@ -164,20 +151,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  // Don't render children until auth is initialized
-  if (!initialized) {
-    return (
-      <div className="min-h-screen bg-background pt-32 pb-20">
-        <div className="container px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <div className="w-12 h-12 animate-spin mx-auto mb-4 border-4 border-primary border-t-transparent rounded-full" />
-            <p className="text-muted-foreground">Initializing...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <AuthContext.Provider
       value={{
@@ -187,6 +160,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         register,
         loading,
         isAuthenticated: !!user,
+        initializeAuth,
+        initialized,
       }}
     >
       {children}

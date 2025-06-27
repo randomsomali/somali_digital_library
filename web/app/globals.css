@@ -6,8 +6,8 @@
   html, body {
     @apply h-full w-full;
   }
-    nextjs-portal {
-      display: none; }
+    /* nextjs-portal {
+      display: none; } */
   body {
     @apply min-h-screen bg-background text-foreground antialiased;
   }

@@ -11,12 +11,12 @@ export default function PublicRoute({
   children: React.ReactNode;
   lang: string;
 }) {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading, isAuthenticated, initialized } = useAuth();
   const router = useRouter();
   const [isRedirecting, setIsRedirecting] = useState(false);
 
   useEffect(() => {
-    if (loading || isRedirecting) return;
+    if (loading || !initialized) return;
 
     // If authenticated, redirect to appropriate dashboard
     if (isAuthenticated && user) {
@@ -27,10 +27,10 @@ export default function PublicRoute({
         router.replace(`/${lang}/dashboard`);
       }
     }
-  }, [user, loading, isAuthenticated, router, lang, isRedirecting]);
+  }, [user, loading, isAuthenticated, router, lang, initialized]);
 
   // Show loading while checking authentication or redirecting
-  if (loading || isRedirecting) {
+  if (loading || isRedirecting || !initialized) {
     return (
       <div className="min-h-screen bg-background pt-32 pb-20">
         <div className="container px-4">
@@ -39,6 +39,8 @@ export default function PublicRoute({
             <p className="text-muted-foreground">
               {loading
                 ? "Checking authentication..."
+                : !initialized
+                ? "Initializing..."
                 : "Redirecting to dashboard..."}
             </p>
           </div>

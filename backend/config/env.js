@@ -1,38 +1,34 @@
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 dotenv.config({
-  path: `.env.${process.env.NODE_ENV || 'development'}.local`
+  path: `.env`,
 });
 
 export const {
-  PORT = 3333,
-  NODE_ENV = 'development',
-  FRONTEND_URLS = 'http://localhost:3000,http://localhost:5173',
+  PORT,
+  NODE_ENV = "development",
+  FRONTEND_URLS = "http://localhost:3000,http://localhost:5173",
   // Database
-  MYSQL_HOST,
+  MYSQL_HOST = "localhost",
   MYSQL_USER,
   MYSQL_PASSWORD,
   MYSQL_DATABASE,
   MYSQL_PORT = 3306,
-  
+
   // JWT
   JWT_SECRET,
-  JWT_EXPIRES_IN = '7d',
-  
+  JWT_EXPIRES_IN,
+
   // Security
   ARCJET_KEY,
-  ARCJET_ENV = 'development',
-  
-  // Server
-  SERVER_URL = 'http://localhost:3333',
-  
+  ARCJET_ENV = "development",
   // Cloudinary
   CLOUDINARY_CLOUD_NAME,
   CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET
-} = process.env; 
+  CLOUDINARY_API_SECRET,
+} = process.env;

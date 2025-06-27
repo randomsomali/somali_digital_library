@@ -72,7 +72,6 @@ const Resources = () => {
 
   // Handle status update
   const handleStatusChange = async (id, status) => {
-    console.log(id)
     try {
       await updateResourceStatus(id, status);
       showSuccess("Resource status updated successfully");

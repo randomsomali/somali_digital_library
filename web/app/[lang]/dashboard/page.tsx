@@ -22,7 +22,6 @@ export default function DashboardPage({
 
   useEffect(() => {
     const loadDictionary = async () => {
-      console.log("user", user);
       const dict = await getDictionary(lang as "en" | "ar");
       setDictionary(dict);
     };

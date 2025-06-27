@@ -33,7 +33,6 @@ export default function InstitutionDashboardPage({
       setDictionary(dict);
     };
     loadDictionary();
-    console.log("user", user);
   }, [lang]);
 
   const handleLogout = async () => {
