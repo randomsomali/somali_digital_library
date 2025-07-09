@@ -34,8 +34,8 @@ class Institution {
         i.sub_status,
         i.created_at,
         COUNT(DISTINCT u.user_id) as user_count,
-        s.name as subscription_name,
-        us.expiry_date
+        MAX(s.name) as subscription_name,
+        MAX(us.expiry_date) as expiry_date
       FROM institutions i
       LEFT JOIN users u ON i.institution_id = u.institution_id
       LEFT JOIN user_subscriptions us ON i.institution_id = us.institution_id AND us.status = 'active'
@@ -59,7 +59,7 @@ class Institution {
     const countSql = `SELECT COUNT(DISTINCT i.institution_id) as total FROM institutions i ${
       sql.split("FROM institutions i")[1].split("GROUP BY")[0] || ""
     }`;
-    
+
     const [countResult] = await db.query(countSql, params);
     const total = countResult.total;
     const totalPages = Math.ceil(total / limit);
@@ -88,8 +88,8 @@ class Institution {
         i.sub_status,
         i.created_at,
         COUNT(DISTINCT u.user_id) as user_count,
-        s.name as subscription_name,
-        us.expiry_date
+        MAX(s.name) as subscription_name,
+        MAX(us.expiry_date) as expiry_date
       FROM institutions i
       LEFT JOIN users u ON i.institution_id = u.institution_id
       LEFT JOIN user_subscriptions us ON i.institution_id = us.institution_id AND us.status = 'active'
@@ -128,7 +128,7 @@ class Institution {
       data.name,
       data.email,
       data.password,
-      data.sub_status || 'none'
+      data.sub_status || "none",
     ]);
 
     return this.findByIdForAdmin(result.insertId);
@@ -193,7 +193,8 @@ class Institution {
   }
 
   static async checkEmailExists(email, excludeId = null) {
-    const sql = "SELECT institution_id FROM institutions WHERE email = ? AND institution_id != ?";
+    const sql =
+      "SELECT institution_id FROM institutions WHERE email = ? AND institution_id != ?";
     const result = await db.query(sql, [email, excludeId || 0]);
     return result.length > 0;
   }
