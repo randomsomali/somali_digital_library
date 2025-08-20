@@ -117,20 +117,20 @@ export function Hero({ dictionary, lang }: HeroProps) {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.8 }}
-            className="grid md:grid-cols-3 gap-6 w-full mb-12"
+            className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 w-full mb-12"
           >
-            {/* Academic Category */}
+            {/* Somali Theses Category */}
             <div className="relative group h-64 w-full">
               <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-blue-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
               <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-blue-500/40 transition-all duration-300 h-full flex flex-col">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-400 to-blue-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
                   <span className="text-white font-bold text-lg">🎓</span>
                 </div>
-                <h3 className="font-semibold text-2xl mb-3 text-foreground">
-                  {dictionary.categories.academic.title}
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.somaliTheses.title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
-                  {dictionary.categories.academic.description}
+                  {dictionary.categories.somaliTheses.description}
                 </p>
                 <Button
                   variant="ghost"
@@ -138,7 +138,7 @@ export function Hero({ dictionary, lang }: HeroProps) {
                   className="gap-2 p-0 h-auto hover:bg-transparent hover:text-blue-500 self-start group-hover:translate-x-1 transition-all duration-300"
                   asChild
                 >
-                  <Link href={`/${lang}/resources?type=Article`}>
+                  <Link href={`/${lang}/resources?type=Thesis&language=Somali`}>
                     <span className="text-xs font-medium">
                       {dictionary.home.hero.explore}
                     </span>
@@ -148,18 +148,18 @@ export function Hero({ dictionary, lang }: HeroProps) {
               </div>
             </div>
 
-            {/* Research Category */}
+            {/* Somali Journals Category */}
             <div className="relative group h-64 w-full">
               <div className="absolute inset-0 bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
               <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-green-500/40 transition-all duration-300 h-full flex flex-col">
                 <div className="w-12 h-12 bg-gradient-to-br from-green-400 to-green-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-lg">🔬</span>
+                  <span className="text-white font-bold text-lg">📊</span>
                 </div>
-                <h3 className="font-semibold text-2xl mb-3 text-foreground">
-                  {dictionary.categories.research.title}
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.somaliJournals.title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
-                  {dictionary.categories.research.description}
+                  {dictionary.categories.somaliJournals.description}
                 </p>
                 <Button
                   variant="ghost"
@@ -167,7 +167,7 @@ export function Hero({ dictionary, lang }: HeroProps) {
                   className="gap-2 p-0 h-auto hover:bg-transparent hover:text-green-500 self-start group-hover:translate-x-1 transition-all duration-300"
                   asChild
                 >
-                  <Link href={`/${lang}/resources?type=Article`}>
+                  <Link href={`/${lang}/resources?type=Journal&language=Somali`}>
                     <span className="text-xs font-medium">
                       {dictionary.home.hero.explore}
                     </span>
@@ -177,18 +177,47 @@ export function Hero({ dictionary, lang }: HeroProps) {
               </div>
             </div>
 
-            {/* Literature Category */}
+            {/* Arabic Sources Category */}
+            <div className="relative group h-64 w-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-orange-500/10 to-orange-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+              <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-orange-500/40 transition-all duration-300 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-lg">📚</span>
+                </div>
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.arabicSources.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
+                  {dictionary.categories.arabicSources.description}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 p-0 h-auto hover:bg-transparent hover:text-orange-500 self-start group-hover:translate-x-1 transition-all duration-300"
+                  asChild
+                >
+                  <Link href={`/${lang}/arabic-sources`}>
+                    <span className="text-xs font-medium">
+                      {dictionary.home.hero.explore}
+                    </span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Foreign Sources Category */}
             <div className="relative group h-64 w-full">
               <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-purple-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
               <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-purple-500/40 transition-all duration-300 h-full flex flex-col">
                 <div className="w-12 h-12 bg-gradient-to-br from-purple-400 to-purple-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
-                  <span className="text-white font-bold text-lg">📚</span>
+                  <span className="text-white font-bold text-lg">🌍</span>
                 </div>
-                <h3 className="font-semibold text-2xl mb-3 text-foreground">
-                  {dictionary.categories.literature.title}
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.foreignSources.title}
                 </h3>
                 <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
-                  {dictionary.categories.literature.description}
+                  {dictionary.categories.foreignSources.description}
                 </p>
                 <Button
                   variant="ghost"
@@ -196,7 +225,65 @@ export function Hero({ dictionary, lang }: HeroProps) {
                   className="gap-2 p-0 h-auto hover:bg-transparent hover:text-purple-500 self-start group-hover:translate-x-1 transition-all duration-300"
                   asChild
                 >
-                  <Link href={`/${lang}/resources?type=Article`}>
+                  <Link href={`/${lang}/foreign-sources`}>
+                    <span className="text-xs font-medium">
+                      {dictionary.home.hero.explore}
+                    </span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Somali Literature Category */}
+            <div className="relative group h-64 w-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 to-red-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+              <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-red-500/40 transition-all duration-300 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gradient-to-br from-red-400 to-red-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-lg">📖</span>
+                </div>
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.somaliLiterature.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
+                  {dictionary.categories.somaliLiterature.description}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 p-0 h-auto hover:bg-transparent hover:text-red-500 self-start group-hover:translate-x-1 transition-all duration-300"
+                  asChild
+                >
+                  <Link href={`/${lang}/resources?type=Book&language=Somali`}>
+                    <span className="text-xs font-medium">
+                      {dictionary.home.hero.explore}
+                    </span>
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Open Books Category */}
+            <div className="relative group h-64 w-full">
+              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/10 to-teal-600/10 rounded-2xl blur-xl group-hover:blur-2xl transition-all duration-300" />
+              <div className="relative bg-card/60 backdrop-blur-sm border border-border/40 rounded-2xl p-6 hover:border-teal-500/40 transition-all duration-300 h-full flex flex-col">
+                <div className="w-12 h-12 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl mb-4 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white font-bold text-lg">🆓</span>
+                </div>
+                <h3 className="font-semibold text-xl mb-3 text-foreground">
+                  {dictionary.categories.openBooks.title}
+                </h3>
+                <p className="text-sm text-muted-foreground mb-6 flex-grow leading-relaxed">
+                  {dictionary.categories.openBooks.description}
+                </p>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="gap-2 p-0 h-auto hover:bg-transparent hover:text-teal-500 self-start group-hover:translate-x-1 transition-all duration-300"
+                  asChild
+                >
+                  <Link href={`/${lang}/resources?paid=free`}>
                     <span className="text-xs font-medium">
                       {dictionary.home.hero.explore}
                     </span>

@@ -211,15 +211,27 @@ export interface AppDictionary {
     categories: {
         title: string;
         description: string;
-        academic: {
+        somaliTheses: {
             title: string;
             description: string;
         };
-        research: {
+        somaliJournals: {
             title: string;
             description: string;
         };
-        literature: {
+        arabicSources: {
+            title: string;
+            description: string;
+        };
+        foreignSources: {
+            title: string;
+            description: string;
+        };
+        somaliLiterature: {
+            title: string;
+            description: string;
+        };
+        openBooks: {
             title: string;
             description: string;
         };
@@ -346,5 +358,27 @@ export interface AppDictionary {
         viewReports: string;
         updateInstitutionInfo: string;
         institutionFeatures: string;
+    };
+    knowledgeSources: {
+        title: string;
+        description: string;
+        arabicSources: {
+            title: string;
+            description: string;
+            comingSoon: string;
+            comingSoonDescription: string;
+            partners: string;
+            noPartners: string;
+        };
+        foreignSources: {
+            title: string;
+            description: string;
+            comingSoon: string;
+            comingSoonDescription: string;
+            partners: string;
+            noPartners: string;
+        };
+        backToHome: string;
+        exploreResources: string;
     };
 }

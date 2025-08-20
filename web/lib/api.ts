@@ -9,9 +9,7 @@ const api = axios.create({
     withCredentials: true, // Important for sending cookies
 
 });
-// Add this for debugging
-console.log('API Base URL:', process.env.NEXT_PUBLIC_API_URL);
-console.log('Full Base URL:', api.defaults.baseURL);
+
 // Add response interceptor for better error handling
 api.interceptors.response.use(
     (response) => response,

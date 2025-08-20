@@ -46,11 +46,28 @@ export default async function ResourcesPage({
   const awaitedSearchParams = await searchParams;
   const { page, filters } = parseSearchParams(awaitedSearchParams);
 
-  const initialResources = await getResources({
-    ...filters,
-    page,
-    limit: 15,
-  });
+  // Check if there's an active search term
+  const hasSearchTerm = filters.search && filters.search.trim() !== "";
+
+  let initialResources;
+  if (hasSearchTerm) {
+    // Only fetch resources if there's a search term
+    initialResources = await getResources({
+      ...filters,
+      page,
+      limit: 15,
+    });
+  } else {
+    // Return empty results if no search term
+    initialResources = {
+      success: true,
+      data: [],
+      total: 0,
+      totalPages: 0,
+      page: 1,
+      limit: 15,
+    };
+  }
 
   return (
     <main className="min-h-screen bg-background pt-32 pb-20">
@@ -60,6 +77,7 @@ export default async function ResourcesPage({
           dictionary={dictionary}
           lang={lang}
           initialFilters={filters}
+          hasSearchTerm={hasSearchTerm}
         />
       </div>
     </main>

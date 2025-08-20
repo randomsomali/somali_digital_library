@@ -21,6 +21,7 @@ interface ResourcesContentProps {
   dictionary: AppDictionary;
   lang: string;
   initialFilters?: Filters;
+  hasSearchTerm?: boolean;
 }
 
 export function ResourcesContent({
@@ -28,6 +29,7 @@ export function ResourcesContent({
   dictionary,
   lang,
   initialFilters = {},
+  hasSearchTerm = false,
 }: ResourcesContentProps) {
   const {
     resources,
@@ -110,31 +112,51 @@ export function ResourcesContent({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-muted-foreground">
-                  {dictionary.resources.resultsCount.replace(
-                    "{count}",
-                    resources.length.toString()
-                  )}
+                  {hasSearchTerm 
+                    ? dictionary.resources.resultsCount.replace(
+                        "{count}",
+                        resources.length.toString()
+                      )
+                    : "Use search to find resources"
+                  }
                 </span>
               </div>
 
               {/* Clear Filters Button (Desktop) */}
-              <div className="hidden lg:block">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="text-muted-foreground hover:text-primary hover:bg-accent/50"
-                >
-                  <X className="h-4 w-4 mr-2" />
-                  {dictionary.resources.filters.clear}
-                </Button>
-              </div>
+              {hasSearchTerm && (
+                <div className="hidden lg:block">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="text-muted-foreground hover:text-primary hover:bg-accent/50"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    {dictionary.resources.filters.clear}
+                  </Button>
+                </div>
+              )}
             </div>
 
             {/* Resources List */}
             <div className="min-h-[400px]">
               {loading ? (
                 <ResourceList.Skeleton />
+              ) : !hasSearchTerm && resources.length === 0 ? (
+                // Show search prompt when no filters are active
+                <div className="text-center py-16 bg-gradient-to-br from-muted/20 via-muted/10 to-background rounded-2xl border border-border/50">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 bg-gradient-to-br from-primary/10 to-primary/20 rounded-full flex items-center justify-center mx-auto">
+                      <span className="text-2xl">🔍</span>
+                    </div>
+                    <div className="text-xl text-muted-foreground mb-2">
+                      Start Your Search
+                    </div>
+                    <div className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
+                      Use the search bar or filters above to discover resources in our digital library
+                    </div>
+                  </div>
+                </div>
               ) : resources.length > 0 ? (
                 <>
                   <ResourceList

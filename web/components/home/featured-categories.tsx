@@ -23,28 +23,52 @@ export function FeaturedCategories({
 }: FeaturedCategoriesProps) {
   const categories = [
     {
-      title: dictionary.categories.academic.title,
-      description: dictionary.categories.academic.description,
+      title: dictionary.categories.somaliTheses.title,
+      description: dictionary.categories.somaliTheses.description,
       icon: "🎓",
-      href: `/${lang}/resources?type=Article`,
+      href: `/${lang}/resources?type=Thesis`,
       gradient: "from-blue-500 to-blue-600",
       bgGradient: "from-blue-500/10 to-blue-600/10",
     },
     {
-      title: dictionary.categories.research.title,
-      description: dictionary.categories.research.description,
-      icon: "🔬",
-      href: `/${lang}/resources?type=Article`,
+      title: dictionary.categories.somaliJournals.title,
+      description: dictionary.categories.somaliJournals.description,
+      icon: "📊",
+      href: `/${lang}/resources?type=Journal`,
       gradient: "from-green-500 to-green-600",
       bgGradient: "from-green-500/10 to-green-600/10",
     },
     {
-      title: dictionary.categories.literature.title,
-      description: dictionary.categories.literature.description,
+      title: dictionary.categories.arabicSources.title,
+      description: dictionary.categories.arabicSources.description,
       icon: "📚",
-      href: `/${lang}/resources?type=Article`,
+      href: `/${lang}/arabic-sources`,
+      gradient: "from-orange-500 to-orange-600",
+      bgGradient: "from-orange-500/10 to-orange-600/10",
+    },
+    {
+      title: dictionary.categories.foreignSources.title,
+      description: dictionary.categories.foreignSources.description,
+      icon: "🌍",
+      href: `/${lang}/foreign-sources`,
       gradient: "from-purple-500 to-purple-600",
       bgGradient: "from-purple-500/10 to-purple-600/10",
+    },
+    {
+      title: dictionary.categories.somaliLiterature.title,
+      description: dictionary.categories.somaliLiterature.description,
+      icon: "📖",
+      href: `/${lang}/resources?type=Book`,
+      gradient: "from-red-500 to-red-600",
+      bgGradient: "from-red-500/10 to-red-600/10",
+    },
+    {
+      title: dictionary.categories.openBooks.title,
+      description: dictionary.categories.openBooks.description,
+      icon: "🆓",
+      href: `/${lang}/resources?paid=free`,
+      gradient: "from-teal-500 to-teal-600",
+      bgGradient: "from-teal-500/10 to-teal-600/10",
     },
   ];
 
@@ -76,7 +100,7 @@ export function FeaturedCategories({
               key={index}
               initial={{ opacity: 0, y: 30, scale: 0.95 }}
               whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.6, delay: index * 0.2 }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
               viewport={{ once: true }}
             >
               <Link href={category.href}>

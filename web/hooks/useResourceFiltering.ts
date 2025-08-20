@@ -96,18 +96,21 @@ export function useResourceFiltering(initialData: {
     }, []);
 
     // Handle filtering - modified to reset page
-    const handleFilter = async (filters: ResourceFilters) => {
+    const handleFilter = async (newFilters: ResourceFilters) => {
         setLoading(true);
         try {
+            // Merge new filters with existing filters from URL
+            const mergedFilters = { ...initialFilters, ...newFilters };
+            
             const response = await getResources({
-                ...filters,
+                ...mergedFilters,
                 page: 1,
                 limit: ITEMS_PER_PAGE
             });
             setResources(response.data);
             setTotalPages(response.totalPages);
             setCurrentPage(1);
-            updateUrl(filters, 1);
+            updateUrl(mergedFilters, 1);
         } catch (error) {
             console.error('Error filtering resources:', error);
             setResources(initialData.data);

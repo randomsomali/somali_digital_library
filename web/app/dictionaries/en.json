@@ -218,17 +218,29 @@
   "categories": {
     "title": "Featured Categories",
     "description": "Browse through various knowledge categories and explore the digital library.",
-    "academic": {
-      "title": "Academic",
-      "description": "Access to a wide range of academic resources and materials."
+    "somaliTheses": {
+      "title": "Somali University Theses",
+      "description": "Access comprehensive collection of Somali university theses and dissertations."
     },
-    "research": {
-      "title": "Research",
-      "description": "Explore research papers, journals, and articles from various fields."
+    "somaliJournals": {
+      "title": "Somali Scientific Journals",
+      "description": "Explore scientific journals and research publications from Somali institutions."
     },
-    "literature": {
-      "title": "Literature",
-      "description": "Dive into classical and modern literature from renowned authors."
+    "arabicSources": {
+      "title": "Arabic Knowledge Sources",
+      "description": "Access Arabic knowledge resources and digital libraries from partner institutions."
+    },
+    "foreignSources": {
+      "title": "Foreign Knowledge Sources",
+      "description": "Explore international knowledge resources and academic databases."
+    },
+    "somaliLiterature": {
+      "title": "Somali Literature",
+      "description": "Dive into classical and modern Somali literature from renowned authors."
+    },
+    "openBooks": {
+      "title": "Open Books",
+      "description": "Access free and open-access books and educational materials."
     }
   },
   "search": {
@@ -376,5 +388,27 @@
     "viewReports": "View Reports",
     "updateInstitutionInfo": "Update Institution Info",
     "institutionFeatures": "This institution dashboard will be available soon with full management features"
+  },
+  "knowledgeSources": {
+    "title": "Knowledge Sources",
+    "description": "Access comprehensive knowledge resources from partner institutions and digital libraries.",
+    "arabicSources": {
+      "title": "Arabic Knowledge Sources",
+      "description": "Access Arabic knowledge resources and digital libraries from partner institutions.",
+      "comingSoon": "Coming Soon",
+      "comingSoonDescription": "We are working to bring you access to the best Arabic knowledge resources. This feature will be available soon with comprehensive access to Arabic digital libraries and academic databases.",
+      "partners": "Partner Institutions",
+      "noPartners": "No partner institutions available yet"
+    },
+    "foreignSources": {
+      "title": "Foreign Knowledge Sources",
+      "description": "Explore international knowledge resources and academic databases.",
+      "comingSoon": "Coming Soon",
+      "comingSoonDescription": "We are working to bring you access to international knowledge resources. This feature will be available soon with comprehensive access to global digital libraries and academic databases.",
+      "partners": "Partner Institutions",
+      "noPartners": "No partner institutions available yet"
+    },
+    "backToHome": "Back to Home",
+    "exploreResources": "Explore Our Resources"
   }
 }

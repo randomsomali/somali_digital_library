@@ -34,13 +34,14 @@ export function ResourceFilters({
   years,
   languages,
   categories,
+  initialFilters = {},
 }: ResourceFiltersProps) {
   const [filters, setFilters] = useState<Filters>({
-    search: "",
-    type: "all",
-    year: "all",
-    language: "all",
-    category_id: "all",
+    search: initialFilters.search || "",
+    type: initialFilters.type || "all",
+    year: initialFilters.year || "all",
+    language: initialFilters.language || "all",
+    category_id: initialFilters.category_id || "all",
   });
 
   const handleChange = (key: keyof Filters, value: string) => {
