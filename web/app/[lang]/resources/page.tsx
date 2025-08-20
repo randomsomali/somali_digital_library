@@ -47,7 +47,7 @@ export default async function ResourcesPage({
   const { page, filters } = parseSearchParams(awaitedSearchParams);
 
   // Check if there's an active search term
-  const hasSearchTerm = filters.search && filters.search.trim() !== "";
+  const hasSearchTerm = Boolean(filters.search && filters.search.trim() !== "");
 
   let initialResources;
   if (hasSearchTerm) {
