@@ -13,6 +13,7 @@ export const {
   PORT,
   NODE_ENV = "development",
   FRONTEND_URLS,
+  COOKIE_DOMAIN,
   // Database
   MYSQL_HOST,
   MYSQL_USER,
