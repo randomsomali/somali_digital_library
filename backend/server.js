@@ -31,16 +31,35 @@ app.use(
   })
 );
 
-// CORS configuration with multiple origins
+const FRONTEND_URLS = process.env.FRONTEND_URLS || ""; // "https://a.com,https://b.com"
+const ALLOW_ALL_CORS = process.env.ALLOW_ALL_CORS === "true"; // <-- set true in test mode
+
+const allowedOrigins = FRONTEND_URLS.split(",")
+  .map(s => s.trim())
+  .filter(Boolean);
+
 app.use(
   cors({
-    origin: "*",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (mobile apps, curl, same-origin)
+      if (!origin) return callback(null, true);
+
+      if (ALLOW_ALL_CORS) {
+        // TEST MODE: reflect the request's Origin so credentials work
+        return callback(null, true); // cors will echo back the Origin
+      }
+
+      // PROD MODE: strict allowlist
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(new Error("Not allowed by CORS"));
+    },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
-
 app.use(bodyParser.json());
 app.use(cookieParser());
 // app.use(arcjetMiddleware);
