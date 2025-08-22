@@ -6,7 +6,7 @@ import http from "http";
 import helmet from "helmet";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import arcjetMiddleware from "./middleware/arcjetMiddleware.js";
-import { PORT, NODE_ENV} from "./config/env.js";
+import { PORT, NODE_ENV, FRONTEND_URLS } from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
@@ -31,35 +31,26 @@ app.use(
   })
 );
 
-const FRONTEND_URLS = process.env.FRONTEND_URLS || ""; // "https://a.com,https://b.com"
-const ALLOW_ALL_CORS = process.env.ALLOW_ALL_CORS === "true"; // <-- set true in test mode
-
-const allowedOrigins = FRONTEND_URLS.split(",")
-  .map(s => s.trim())
-  .filter(Boolean);
-
+// CORS configuration with multiple origins
 app.use(
   cors({
     origin: function (origin, callback) {
-      // Allow requests with no origin (mobile apps, curl, same-origin)
+      // Allow requests with no origin (like mobile apps or curl requests)
       if (!origin) return callback(null, true);
 
-      if (ALLOW_ALL_CORS) {
-        // TEST MODE: reflect the request's Origin so credentials work
-        return callback(null, true); // cors will echo back the Origin
+      const allowedOrigins = FRONTEND_URLS.split(",").map((url) => url.trim());
+      if (allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
       }
-
-      // PROD MODE: strict allowlist
-      if (allowedOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-      return callback(new Error("Not allowed by CORS"));
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   })
 );
+
 app.use(bodyParser.json());
 app.use(cookieParser());
 // app.use(arcjetMiddleware);
