@@ -4,6 +4,18 @@ import Admin from "../models/adminModel.js";
 import Institution from "../models/institutionModel.js";
 import RefreshToken from "../models/refreshTokenModel.js";
 import { generateTokens } from "../utils/jwt.js";
+import { NODE_ENV , COOKIE_DOMAIN} from "../config/env.js";
+
+// Cookie configuration for different environments
+const isProd = NODE_ENV === 'production';
+
+const baseCookie = {
+  httpOnly: true,
+  secure: isProd,                     // must be true in prod
+  sameSite: isProd ? 'none' : 'lax',  // cross-site needs 'none' in prod
+  path: '/',
+  ...(COOKIE_DOMAIN ? { domain: COOKIE_DOMAIN } : {}),
+};
 
 class AuthService {
   static async saveRefreshToken(
@@ -32,26 +44,19 @@ class AuthService {
   }
 
   static setCookies(res, { accessToken, refreshToken }) {
-    const isProduction = process.env.NODE_ENV === "production";
-    
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "strict" : "lax",
-      maxAge: 15 * 60 * 1000, // 15 minutes
+    res.cookie('accessToken', accessToken, {
+      ...baseCookie,
+      maxAge: 15 * 60 * 1000,           // 15 min
     });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: isProduction,
-      sameSite: isProduction ? "strict" : "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    res.cookie('refreshToken', refreshToken, {
+      ...baseCookie,
+      maxAge: 7 * 24 * 60 * 60 * 1000,  // 7 days
     });
   }
 
   static clearCookies(res) {
-    res.cookie("accessToken", "", { maxAge: 0 });
-    res.cookie("refreshToken", "", { maxAge: 0 });
+    res.clearCookie('accessToken', baseCookie);
+    res.clearCookie('refreshToken', baseCookie);
   }
 }
 
