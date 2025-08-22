@@ -6,7 +6,7 @@ import http from "http";
 import helmet from "helmet";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import arcjetMiddleware from "./middleware/arcjetMiddleware.js";
-import { PORT, NODE_ENV, FRONTEND_URLS } from "./config/env.js";
+import { PORT, NODE_ENV} from "./config/env.js";
 import authRoutes from "./routes/authRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import categoryRoutes from "./routes/categoryRoutes.js";
